@@ -48,10 +48,6 @@ const removeUser = (u: UserRow) => {
 const editing = ref<Goods | null>(null)
 const showEdit = ref(false)
 
-const openEdit = (g: Goods) => {
-  editing.value = { ...g }
-  showEdit.value = true
-}
 
 const openAdd = () => {
   editing.value = {
@@ -93,14 +89,7 @@ const saveGoods = () => {
   showEdit.value = false
 }
 
-const removeGoods = (g: Goods) => {
-  showConfirmDialog({ title: '删除商品', message: `确定删除商品「${g.name}」吗？` })
-    .then(() => {
-      goodsStore.removeGoods(g.id)
-      showToast('已删除')
-    })
-    .catch(() => { })
-}
+
 
 /* ================= 顶部操作 ================= */
 const backToShop = () => router.push('/home')
@@ -210,7 +199,7 @@ const logout = () => {
                 ...g,
                 actions: g
               }))" row-key="id">
-              <template #operate="{ row }">
+              <template #operate>
                 <button>编辑</button>
                 <button>删除</button>
               </template>
