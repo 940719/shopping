@@ -1,10 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { showToast } from 'vant'
+import { useUserStore } from '@/store/user'
 
-const userInfo = ref({
-  nickname: '未登录',
-  desc: '登录后享受更多会员权益'
-})
+const router = useRouter()
+const userStore = useUserStore()
+
+const nickname = computed(() => userStore.userInfo?.nickname || '未登录')
+const desc = computed(() =>
+  userStore.isLogin
+    ? userStore.isAdmin
+      ? '管理员账号，可进入管理后台'
+      : '已登录，享受会员权益'
+    : '登录后享受更多会员权益'
+)
+
+const onLoginClick = () => {
+  if (userStore.isLogin) {
+    userStore.logout()
+    showToast('已退出登录')
+  } else {
+    router.push('/login')
+  }
+}
 
 const orderEntries = [
   { icon: '💳', label: '待付款' },
@@ -30,17 +49,17 @@ const menuEntries = [
         <div class="user-info">
           <div class="avatar">🙂</div>
           <div class="user-meta">
-            <div class="nickname">{{ userInfo.nickname }}</div>
-            <div class="desc">{{ userInfo.desc }}</div>
+            <div class="nickname">{{ nickname }}</div>
+            <div class="desc">{{ desc }}</div>
           </div>
           <van-button
             round
             size="small"
             color="rgba(255,255,255,0.9)"
             class="login-btn"
-            @click="userInfo.nickname = '商城会员'"
+            @click="onLoginClick"
           >
-            登录 / 注册
+            {{ userStore.isLogin ? '退出登录' : '登录 / 注册' }}
           </van-button>
         </div>
       </div>

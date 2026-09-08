@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-
+// import { useGoodsStore, type Goods } from '@/store/goods'
+import { getProductList ,type Product } from '@/api/product'
 const router = useRouter()
+// const goodsStore = useGoodsStore()
 
 /* ---------- 响应式视口（PC / 移动） ---------- */
 const isPc = ref(false)
@@ -13,9 +15,10 @@ const updateViewport = () => {
 }
 
 onMounted(() => {
-  mq = window.matchMedia('(min-width: 768px)')
-  updateViewport()
-  mq.addEventListener('change', updateViewport)
+  mq = window.matchMedia('(min-width: 768px)');
+  updateViewport();
+  mq.addEventListener('change', updateViewport);
+  initProductList();
 })
 
 onBeforeUnmount(() => {
@@ -25,9 +28,29 @@ onBeforeUnmount(() => {
 /* 金刚区列数：移动端 4 列，PC 端 8 列一行 */
 const gridColumns = computed(() => (isPc.value ? 8 : 4))
 
+/* ---------- 推荐商品（来自全局 store，管理后台修改后实时生效） ---------- */
+// const goodsList = computed(() => goodsStore.goodsList)
+
+const goodsList = ref<Product[]>([]);
+
+
+const initProductList= async() =>{
+  try {
+    const {code, data} = await getProductList()
+
+    if(code !== 200) {
+      console.error('获取商品列表失败，状态码：', code);
+            return;
+        }
+    goodsList.value = data;
+    console.log('商品列表：', data);
+    } catch (error) {
+        console.error('获取商品列表失败：', error);
+    }
+};
+
 /* ---------- 搜索 ---------- */
 const keyword = ref('')
-
 const onSearch = (val: string) => {
   // 演示：跳转到分类页（后续可接商品搜索页）
   router.push({ path: '/category', query: { keyword: val } })
@@ -52,33 +75,11 @@ const gridEntries = [
   { icon: '🎁', label: '领券中心', color: '#f5222d' }
 ]
 
-/* ---------- 推荐商品（mock 数据，后续可替换为接口） ---------- */
-interface Goods {
-  id: number
-  name: string
-  emoji: string
-  bg: string
-  price: number
-  originPrice: number
-  sales: number
-}
-
-const goodsList: Goods[] = [
-  { id: 1, name: '无线蓝牙耳机 主动降噪 长续航', emoji: '🎧', bg: 'linear-gradient(135deg,#e6f7ff,#bae7ff)', price: 199, originPrice: 299, sales: 12000 },
-  { id: 2, name: '智能手环 心率监测 50 米防水', emoji: '⌚', bg: 'linear-gradient(135deg,#f0f5ff,#d6e4ff)', price: 159, originPrice: 229, sales: 8600 },
-  { id: 3, name: '纯棉卫衣 情侣款 宽松百搭', emoji: '🧥', bg: 'linear-gradient(135deg,#fff7e6,#ffe7ba)', price: 129, originPrice: 189, sales: 15000 },
-  { id: 4, name: '保湿精华液 烟酰胺 提亮肤色', emoji: '🧴', bg: 'linear-gradient(135deg,#fff0f6,#ffd6e7)', price: 89, originPrice: 139, sales: 21000 },
-  { id: 5, name: '进口车厘子 JJ 级 2 斤装', emoji: '🍒', bg: 'linear-gradient(135deg,#fff1f0,#ffccc7)', price: 69, originPrice: 99, sales: 32000 },
-  { id: 6, name: '空气炸锅 5L 无油低脂 智能控温', emoji: '🍟', bg: 'linear-gradient(135deg,#f6ffed,#d9f7be)', price: 259, originPrice: 399, sales: 5800 },
-  { id: 7, name: '运动跑鞋 轻便透气 缓震回弹', emoji: '👟', bg: 'linear-gradient(135deg,#f4f0ff,#efdbff)', price: 219, originPrice: 329, sales: 9800 },
-  { id: 8, name: '智能保温杯 316 不锈钢 24 小时保温', emoji: '☕', bg: 'linear-gradient(135deg,#e6fffb,#b5f5ec)', price: 79, originPrice: 119, sales: 17000 }
-]
-
 /* ---------- 秒杀倒计时（演示用静态值） ---------- */
 const countdown = '12:30:00'
 
 const goCategory = () => router.push('/category')
-const addToCart = (goods: Goods) => {
+const addToCart = (goods: Product) => {
   // 演示：加入购物车（后续接 Pinia 购物车状态）
   console.log('加入购物车：', goods.name)
 }
@@ -150,18 +151,19 @@ const addToCart = (goods: Goods) => {
         </div>
         <div class="goods-grid">
           <div v-for="g in goodsList" :key="g.id" class="goods-card">
-            <div class="goods-img" :style="{ background: g.bg }">
-              <span class="goods-emoji">{{ g.emoji }}</span>
+            <div class="goods-img">
+              <img v-if="g.image" :src="g.image" class="goods-image" alt="" />
+              <span v-else class="goods-emoji">📦</span>
             </div>
             <div class="goods-body">
               <div class="goods-name text-ellipsis">{{ g.name }}</div>
               <div class="goods-price-row">
                 <span class="price-symbol">¥</span>
                 <span class="price-num">{{ g.price }}</span>
-                <span class="origin-price">¥{{ g.originPrice }}</span>
+                <span v-if="g.seckillPrice" class="seckill-tag">秒杀 ¥{{ g.seckillPrice }}</span>
               </div>
               <div class="goods-bottom">
-                <span class="goods-sales">已售 {{ g.sales > 10000 ? (g.sales / 10000).toFixed(1) + '万' : g.sales }}</span>
+                <span class="goods-type">{{ g.type || '好物' }}</span>
                 <button class="cart-btn" @click.stop="addToCart(g)">
                   <van-icon name="cart-o" />
                 </button>
@@ -288,6 +290,60 @@ const addToCart = (goods: Goods) => {
   opacity: 0.9;
 }
 
+/* ===== 秒杀商品 ===== */
+.flash-goods {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 0 12px 12px;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.flash-goods::-webkit-scrollbar {
+  display: none;
+}
+.flash-item {
+  flex: 0 0 108px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+.flash-img {
+  height: 78px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+}
+.flash-name {
+  font-size: 12px;
+  color: #333;
+  margin-top: 6px;
+}
+.flash-price-row {
+  display: flex;
+  align-items: baseline;
+  margin-top: 4px;
+}
+.flash-symbol {
+  font-size: 11px;
+  color: #ff2d4b;
+  font-weight: 700;
+}
+.flash-price {
+  font-size: 16px;
+  color: #ff2d4b;
+  font-weight: 700;
+}
+.flash-origin {
+  margin-left: 6px;
+  font-size: 10px;
+  color: #b0b0b0;
+  text-decoration: line-through;
+}
+
 /* ===== 商品推荐 ===== */
 .goods-section {
   margin: 0 12px;
@@ -332,6 +388,12 @@ const addToCart = (goods: Goods) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+.goods-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .goods-emoji {
   font-size: 52px;
@@ -372,7 +434,15 @@ const addToCart = (goods: Goods) => {
   align-items: center;
   justify-content: space-between;
 }
-.goods-sales {
+.seckill-tag {
+  margin-left: 6px;
+  font-size: 11px;
+  color: #fff;
+  background: #ff2d4b;
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+.goods-type {
   font-size: 11px;
   color: #999;
 }

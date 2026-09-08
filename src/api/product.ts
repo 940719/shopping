@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import { get, post, put, del } from '@/utils/request'
 
 /** 商品数据结构（与后端 /api/product 返回一致） */
 export interface Product {
@@ -29,9 +29,13 @@ export interface ProductPayload {
 /**
  * 商品列表（可按类型过滤）
  * GET /api/products?type=xxx
+ *
+ * 注意：必须使用 @/utils/request 导出的 get 封装（内部 request.get<T, T>），
+ * 其返回类型与响应拦截器（response => response.data）保持一致，
+ * 直接调用 request.get<T> 只会传一个泛型，返回类型会变成 AxiosResponse<T> 包装导致 result.code / result.data 类型报错。
  */
 export const getProductList = (type?: string) =>
-  request.get<ApiResponse<Product[]>>('/products', {
+  get<ApiResponse<Product[]>>('/products', {
     params: type ? { type } : undefined,
   })
 
@@ -40,28 +44,28 @@ export const getProductList = (type?: string) =>
  * GET /api/product/:id
  */
 export const getProductById = (id: number) =>
-  request.get<ApiResponse<Product>>(`/product/${id}`)
+  get<ApiResponse<Product>>(`/product/${id}`)
 
 /**
  * 新增商品
  * POST /api/product
  */
 export const postProduct = (data: ProductPayload) =>
-  request.post<ApiResponse<Product>>('/product', data)
+  post<ApiResponse<Product>>('/product', data)
 
 /**
  * 修改商品（未传字段保留原值）
  * PUT /api/product/:id
  */
 export const putProductById = (id: number, data: ProductPayload) =>
-  request.put<ApiResponse<Product>>(`/product/${id}`, data)
+  put<ApiResponse<Product>>(`/product/${id}`, data)
 
 /**
  * 删除商品
  * DELETE /api/product/:id
  */
 export const deleteProductById = (id: number) =>
-  request.delete<ApiResponse<number>>(`/product/${id}`)
+  del<ApiResponse<number>>(`/product/${id}`)
 
 /**
  * 上传商品图片（multipart/form-data，字段名 image）
@@ -70,7 +74,7 @@ export const deleteProductById = (id: number) =>
 export const uploadProductImage = (id: number, file: File) => {
   const formData = new FormData()
   formData.append('image', file)
-  return request.post<ApiResponse<Product>>(`/product/${id}/image`, formData, {
+  return post<ApiResponse<Product>>(`/product/${id}/image`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 }

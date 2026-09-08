@@ -2,9 +2,12 @@
 import { getUserList } from './api/user'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { showToast } from 'vant'
+import { useUserStore } from '@/store/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 // 底部导航激活项（随路由同步）
 const active = ref(0)
@@ -34,6 +37,17 @@ const onTabChange = (index: number) => go(TAB_PATHS[index])
 const onSearch = (val: string) => {
   // 演示：跳转到分类页（后续可接商品搜索页）
   router.push({ path: '/category', query: { keyword: val } })
+}
+
+/* ---------- PC 登录入口 ---------- */
+const goLogin = () => {
+  if (route.path !== '/login') router.push('/login')
+}
+
+const handleLogout = () => {
+  userStore.logout()
+  showToast('已退出登录')
+  if (route.path === '/admin') router.push('/home')
 }
 
 const init = async () => {
@@ -72,6 +86,17 @@ onMounted(() => {
           placeholder="搜索商品，如：耳机"
           @search="onSearch"
         />
+        <!-- PC 登录入口 / 用户信息 -->
+        <div class="pc-user">
+          <template v-if="userStore.isLogin">
+            <span class="pc-username">👤 {{ userStore.userInfo?.nickname }}</span>
+            <button v-if="userStore.isAdmin" class="pc-admin-btn" @click="go('/admin')">管理后台</button>
+            <button class="pc-login-btn" @click="handleLogout">退出</button>
+          </template>
+          <template v-else>
+            <button class="pc-login-btn" @click="goLogin">登录</button>
+          </template>
+        </div>
       </div>
     </header>
 
@@ -186,6 +211,44 @@ onMounted(() => {
   .pc-search :deep(.van-search__content) {
     background: #f5f5f5;
     border-radius: 20px;
+  }
+  .pc-user {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pc-username {
+    font-size: 13px;
+    color: #444;
+    white-space: nowrap;
+  }
+  .pc-login-btn,
+  .pc-admin-btn {
+    padding: 6px 16px;
+    border-radius: 18px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .pc-login-btn {
+    background: linear-gradient(90deg, #ff4d2d, #ff6034);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+  }
+  .pc-login-btn:hover {
+    opacity: 0.9;
+  }
+  .pc-admin-btn {
+    background: #fff;
+    color: #ff4d2d;
+    border: 1px solid #ff4d2d;
+    font-weight: 600;
+  }
+  .pc-admin-btn:hover {
+    background: rgba(255, 77, 45, 0.06);
   }
   .mobile-tabbar {
     display: none !important; /* PC 端隐藏底部导航 */
