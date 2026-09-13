@@ -3,12 +3,10 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
 import { useUserStore } from '@/store/user'
-import { useGoodsStore } from '@/store/goods'
 import ProductManagement from './components/ProductManagement.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
-const goodsStore = useGoodsStore()
 
 /* ================= 菜单 ================= */
 const activeMenu = ref<'users' | 'goods'>('users')

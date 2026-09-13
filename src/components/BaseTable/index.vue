@@ -16,14 +16,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, rowIndex) in tableData" :key="row[rowKey]" @click="handleRowClick(row)" class="table-row">
+        <tr v-for="(row) in tableData" :key="row[rowKey]" @click="handleRowClick(row)" class="table-row">
           <td v-if="selectionType" class="selection-col" :style="getThTdStyle(selectionColumn)" @click.stop>
             <input v-if="selectionType === 'checkbox'" type="checkbox" :checked="isRowSelected(row)"
               @change="handleRowSelect(row)" :disabled="!isRowSelectable(row)" />
             <input v-else-if="selectionType === 'radio'" type="radio" :checked="isRowSelected(row)"
               @change="handleRowSelect(row)" :disabled="!isRowSelectable(row)" :name="radioGroupName" />
           </td>
-          <td v-for="(column, colIndex) in columns" :key="column.key" :style="getThTdStyle(column)" class="cell-wrap">
+          <td v-for="(column) in columns" :key="column.key" :style="getThTdStyle(column)" class="cell-wrap">
             <slot :name="column.key" :row="row" :column="column">
               <span class="cell-text" @mouseenter="handleCellEnter($event, row[column.key])"
                 @mouseleave="handleCellLeave">
