@@ -7,72 +7,28 @@
     <table class="base-table">
       <thead>
         <tr>
-          <th
-            v-if="selectionType"
-            class="selection-col"
-            :style="getThTdStyle(selectionColumn)"
-          >
-            <input
-              v-if="selectionType === 'checkbox'"
-              type="checkbox"
-              v-model="isAllSelected"
-            />
+          <th v-if="selectionType" class="selection-col" :style="getThTdStyle(selectionColumn)">
+            <input v-if="selectionType === 'checkbox'" type="checkbox" v-model="isAllSelected" />
           </th>
-          <th
-            v-for="column in columns"
-            :key="column.key"
-            :style="getThTdStyle(column)"
-          >
+          <th v-for="column in columns" :key="column.key" :style="getThTdStyle(column)">
             {{ column.label }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(row, rowIndex) in tableData"
-          :key="row[rowKey]"
-          @click="handleRowClick(row)"
-          class="table-row"
-        >
-          <td
-            v-if="selectionType"
-            class="selection-col"
-            :style="getThTdStyle(selectionColumn)"
-            @click.stop
-          >
-            <input
-              v-if="selectionType === 'checkbox'"
-              type="checkbox"
-              :checked="isRowSelected(row)"
-              :disabled="!isRowSelectable(row)"
-              @change="handleRowSelect(row)"
-            />
-            <input
-              v-else-if="selectionType === 'radio'"
-              type="radio"
-              :checked="isRowSelected(row)"
-              :disabled="!isRowSelectable(row)"
-              @change="handleRowSelect(row)"
-              :name="radioGroupName"
-            />
+        <tr v-for="(row, rowIndex) in tableData" :key="row[rowKey]" @click="handleRowClick(row)" class="table-row">
+          <td v-if="selectionType" class="selection-col" :style="getThTdStyle(selectionColumn)" @click.stop>
+            <input v-if="selectionType === 'checkbox'" type="checkbox" :checked="isRowSelected(row)"
+              @change="handleRowSelect(row)" :disabled="!isRowSelectable(row)" />
+            <input v-else-if="selectionType === 'radio'" type="radio" :checked="isRowSelected(row)"
+              @change="handleRowSelect(row)" :disabled="!isRowSelectable(row)" :name="radioGroupName" />
           </td>
-          <td
-            v-for="(column, colIndex) in columns"
-            :key="column.key"
-            :style="getThTdStyle(column)"
-            class="cell-wrap"
-            @mouseenter="handleCellEnter($event, rowIndex, colIndex, row[column.key])"
-            @mouseleave="handleCellLeave"
-          >
+          <td v-for="(column, colIndex) in columns" :key="column.key" :style="getThTdStyle(column)" class="cell-wrap">
             <slot :name="column.key" :row="row" :column="column">
-              <span
-                v-if="column.showTooltip"
-                class="cell-text"
-               :ref="(el) => setCellRef(el, rowIndex, colIndex)"
-              >
+              <span class="cell-text" @mouseenter="handleCellEnter($event, row[column.key])"
+                @mouseleave="handleCellLeave">
                 {{ row[column.key] }}
               </span>
-              <span v-else>{{ row[column.key] }}</span>
             </slot>
           </td>
         </tr>
@@ -84,34 +40,28 @@
     </div>
   </div>
 
-  <!-- Teleport 挂载body -->
   <Teleport to="body">
-    <div
-      class="custom-tooltip"
-      :class="tooltipTheme"
-      :style="{
-        left: tooltip.left + 'px',
-        top: tooltip.top + 'px',
-        opacity: tooltip.show ? 1 : 0,
-        visibility: tooltip.show ? 'visible' : 'hidden',
-      }"
-    >
+    <div class="custom-tooltip" :class="tooltipTheme" :style="{
+      left: tooltip.left + 'px',
+      top: tooltip.top + 'px',
+      opacity: tooltip.show ? 1 : 0,
+      visibility: tooltip.show ? 'visible' : 'hidden'
+    }">
       {{ tooltip.content }}
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import type { PropType, CSSProperties, VNode ,ComponentPublicInstance} from 'vue'
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import type { PropType, CSSProperties, VNode } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface TableColumn<T = Record<string, any>> {
   key: string
   label: string
-  width?: number | string
+  width?: string | number
   fixed?: 'left' | 'right' | false
-  render?: (row: T, column: TableColumn<T>) => string | VNode
-  showTooltip?: boolean
+  render?: (row: T, column: TableColumn<T>) => VNode
 }
 
 const props = defineProps({
@@ -151,22 +101,18 @@ const props = defineProps({
 
 const emit = defineEmits<{
   'row-click': [row: Record<string, any>]
-  'selection-change': [selectedRows: Record<string, any>[]]
+  'selection-change': [selectedList: Record<string, any>[]]
 }>()
 
 const selectedRows = ref<Record<string, any>[]>([])
-const radioGroupName = computed(() => `base-table-radio-${Date.now()}`)
+const radioGroupName = computed(() => `table-radio-${Date.now()}`)
 
 const selectionColumn: TableColumn = {
   key: '__selection',
   label: '',
-  width: '50px',
+  width: 50,
   fixed: 'left'
 }
-
-const cellRefs = ref<Map<string, HTMLElement>>(new Map())
-const overflowMap = ref<Map<string, boolean>>(new Map())
-let resizeObserver: ResizeObserver | null = null
 
 const tooltip = ref({
   show: false,
@@ -175,78 +121,23 @@ const tooltip = ref({
   content: ''
 })
 
-const setCellRef = (el: Element | ComponentPublicInstance | null, rowIndex: number, colIndex: number) => {
- // 类型守卫：判断是不是HTMLElement
-  if (el instanceof HTMLElement) {
-    const key = `${rowIndex}-${colIndex}`
-    cellRefs.value.set(key, el)
-    checkCellOverflow(el, key)
-  } else {
-    const key = `${rowIndex}-${colIndex}`
-    cellRefs.value.delete(key)
-    overflowMap.value.delete(key)
-  }
-}
-
-const checkCellOverflow = (el: HTMLElement, key: string) => {
-  const isOverflow = el.scrollWidth > el.clientWidth
-  overflowMap.value.set(key, isOverflow)
-}
-
-const isCellOverflow = (rowIndex: number, colIndex: number): boolean => {
-  const key = `${rowIndex}-${colIndex}`
-  return overflowMap.value.get(key) ?? false
-}
-
-// 固定向上弹出，不再向下切换
-const handleCellEnter = (e: MouseEvent, rowIndex: number, colIndex: number, content: string) => {
-  const overflow = isCellOverflow(rowIndex, colIndex)
-  console.log('是否溢出：', overflow, content)
-  if (!overflow) return
-
+const handleCellEnter = (e: MouseEvent, content: string) => {
   const target = e.currentTarget as HTMLElement
+  const isOverflow = target.scrollWidth > target.clientWidth
+  console.log('是否溢出：', isOverflow, content)
+  if (!isOverflow) return
+
   const rect = target.getBoundingClientRect()
   tooltip.value = {
     show: true,
-    // 水平居中
     left: rect.left + rect.width / 2,
-    // 放在单元格上方，预留8px间距
-    top: rect.top - 28,
+    top: rect.top - 40,
     content
   }
 }
 const handleCellLeave = () => {
   tooltip.value.show = false
 }
-
-watch(
-  () => props.tableData,
-  () => {
-    cellRefs.value.forEach((el, key) => checkCellOverflow(el, key))
-  },
-  { deep: true }
-)
-
-onMounted(() => {
-  resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const el = entry.target as HTMLElement
-      for (const [key, dom] of cellRefs.value.entries()) {
-        if (dom === el) {
-          checkCellOverflow(el, key)
-          break
-        }
-      }
-    }
-  })
-  cellRefs.value.forEach((el) => {
-    resizeObserver?.observe(el)
-  })
-})
-
-onUnmounted(() => {
-  resizeObserver?.disconnect()
-})
 
 const isRowSelectable = (row: Record<string, any>): boolean => {
   if (!props.getSelectable) return true
@@ -274,14 +165,13 @@ const handleRowSelect = (row: Record<string, any>) => {
 
 const isAllSelected = computed({
   get() {
-    const selectableRows = props.tableData.filter(row => isRowSelectable(row))
+    const selectableRows = props.tableData.filter(r => isRowSelectable(r))
     if (selectableRows.length === 0) return false
-    return selectableRows.every(row => isRowSelected(row))
+    return selectableRows.every(r => isRowSelected(r))
   },
   set(val: boolean) {
-    const selectableRows = props.tableData.filter(row => isRowSelectable(row))
     if (val) {
-      selectedRows.value = [...selectableRows]
+      selectedRows.value = props.tableData.filter(r => isRowSelectable(r))
     } else {
       selectedRows.value = selectedRows.value.filter(r => !isRowSelectable(r))
     }
@@ -293,23 +183,12 @@ const handleRowClick = (row: Record<string, any>) => {
   emit('row-click', row)
 }
 
-const getColumnWidth = (w?: number | string): string | undefined => {
+const getColumnWidth = (w?: string | number): string | undefined => {
   if (w === undefined || w === null) return undefined
-  if (typeof w === 'number') {
-    return `${w}px`
-  }
+  if (typeof w === 'number') return `${w}px`
   const str = w.trim()
-  if (/^\d+$/.test(str)) {
-    return `${str}px`
-  }
+  if (/^\d+$/.test(str)) return `${str}px`
   return str
-}
-
-const getWidthNumber = (w?: number | string): number => {
-  const str = getColumnWidth(w)
-  if (!str) return 0
-  const match = str.match(/(\d+)/)
-  return match ? Number(match[1]) : 0
 }
 
 const getThTdStyle = (column: TableColumn): CSSProperties => {
@@ -333,12 +212,13 @@ const getThTdStyle = (column: TableColumn): CSSProperties => {
 const calcLeftOffset = (targetCol: TableColumn): string => {
   let offset = 0
   if (props.selectionType) {
-    offset += getWidthNumber(selectionColumn.width)
+    offset += Number(selectionColumn.width)
   }
   for (const col of props.columns) {
     if (col.key === targetCol.key) break
     if (col.fixed === 'left') {
-      offset += getWidthNumber(col.width)
+      const w = col.width ?? 0
+      offset += typeof w === 'number' ? w : Number(w.toString().replace('px', ''))
     }
   }
   return `${offset}px`
@@ -346,15 +226,16 @@ const calcLeftOffset = (targetCol: TableColumn): string => {
 
 const calcRightOffset = (targetCol: TableColumn): string => {
   let offset = 0
-  let startSum = false
+  let start = false
   for (let i = props.columns.length - 1; i >= 0; i--) {
     const col = props.columns[i]
     if (col.key === targetCol.key) {
-      startSum = true
+      start = true
       continue
     }
-    if (startSum && col.fixed === 'right') {
-      offset += getWidthNumber(col.width)
+    if (start && col.fixed === 'right') {
+      const w = col.width ?? 0
+      offset += typeof w === 'number' ? w : Number(w.toString().replace('px', ''))
     }
   }
   return `${offset}px`
@@ -367,44 +248,54 @@ const calcRightOffset = (targetCol: TableColumn): string => {
   overflow: auto;
   position: relative;
 }
+
 .base-table {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
+
 .base-table thead th {
   position: sticky;
   top: 0;
   background-color: #f9fafb;
   z-index: 2;
 }
+
 .base-table thead th[style*="position: sticky"] {
   z-index: 4;
 }
+
 .base-table th,
 .base-table td {
   padding: 10px 12px;
   border: 1px solid #e5e7eb;
   text-align: left;
 }
+
 .selection-col {
   text-align: center;
   padding: 0 !important;
 }
+
 .table-row {
   cursor: pointer;
 }
-.base-table tbody tr:nth-child(even) {
+
+.table-row:nth-child(even) {
   background-color: #fafafa;
 }
-.base-table tbody tr:hover {
+
+.table-row:hover {
   background-color: #f0f7ff;
 }
+
 .base-table-empty {
   text-align: center;
   padding: 30px;
   color: #999;
 }
+
 .base-table-loading {
   position: absolute;
   inset: 0;
@@ -415,6 +306,7 @@ const calcRightOffset = (targetCol: TableColumn): string => {
   z-index: 10;
   color: #666;
 }
+
 .cell-text {
   display: block;
   overflow: hidden;
@@ -423,7 +315,6 @@ const calcRightOffset = (targetCol: TableColumn): string => {
 }
 </style>
 
-<!-- 全局样式，不要scoped，修复箭头 -->
 <style>
 .custom-tooltip {
   position: fixed;
@@ -431,12 +322,16 @@ const calcRightOffset = (targetCol: TableColumn): string => {
   padding: 8px 12px;
   border-radius: 4px;
   font-size: 12px;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 320px;
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
   z-index: 99999 !important;
   pointer-events: none;
   transition: opacity 0.15s ease;
 }
-/* 箭头 向下指向文字 */
+
 .custom-tooltip::after {
   content: '';
   position: absolute;
@@ -446,21 +341,21 @@ const calcRightOffset = (targetCol: TableColumn): string => {
   border: 6px solid transparent;
 }
 
-/* dark主题 */
 .custom-tooltip.dark {
   background: #303133;
   color: #fff;
 }
+
 .custom-tooltip.dark::after {
   border-top-color: #303133;
 }
 
-/* light主题 */
 .custom-tooltip.light {
   background: #ffffff;
   color: #303133;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
 }
+
 .custom-tooltip.light::after {
   border-top-color: #ffffff;
 }

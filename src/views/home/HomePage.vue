@@ -2,7 +2,8 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 // import { useGoodsStore, type Goods } from '@/store/goods'
-import { getProductList ,type Product } from '@/api/product'
+import { getProductList } from '@/api/product';
+import type { Goods } from '@/store/goods'
 const router = useRouter()
 // const goodsStore = useGoodsStore()
 
@@ -31,22 +32,19 @@ const gridColumns = computed(() => (isPc.value ? 8 : 4))
 /* ---------- 推荐商品（来自全局 store，管理后台修改后实时生效） ---------- */
 // const goodsList = computed(() => goodsStore.goodsList)
 
-const goodsList = ref<Product[]>([]);
+const goodsList = ref<Goods[]>([]);
 
 
-const initProductList= async() =>{
+const initProductList = async () => {
   try {
-    const {code, data} = await getProductList()
-
-    if(code !== 200) {
-      console.error('获取商品列表失败，状态码：', code);
-            return;
-        }
-    goodsList.value = data;
-    console.log('商品列表：', data);
-    } catch (error) {
-        console.error('获取商品列表失败：', error);
+    const { code, data } = await getProductList()
+    if (code !== 200) {
+      return;
     }
+    goodsList.value = data;
+  } catch (error) {
+    console.error('获取商品列表失败，错误信息：', error)
+  }
 };
 
 /* ---------- 搜索 ---------- */
@@ -79,7 +77,7 @@ const gridEntries = [
 const countdown = '12:30:00'
 
 const goCategory = () => router.push('/category')
-const addToCart = (goods: Product) => {
+const addToCart = (goods: Goods) => {
   // 演示：加入购物车（后续接 Pinia 购物车状态）
   console.log('加入购物车：', goods.name)
 }
@@ -91,13 +89,8 @@ const addToCart = (goods: Product) => {
     <div class="header">
       <div class="header-inner">
         <div class="search-wrap">
-          <van-search
-            v-model="keyword"
-            shape="round"
-            placeholder="搜索商品，如：耳机"
-            background="transparent"
-            @search="onSearch"
-          />
+          <van-search v-model="keyword" shape="round" placeholder="搜索商品，如：耳机" background="transparent"
+            @search="onSearch" />
         </div>
       </div>
     </div>
@@ -122,11 +115,7 @@ const addToCart = (goods: Product) => {
       <!-- 金刚区：分类入口 -->
       <div class="grid-card">
         <van-grid :column-num="gridColumns" :border="false" class="grid">
-          <van-grid-item
-            v-for="g in gridEntries"
-            :key="g.label"
-            @click="goCategory"
-          >
+          <van-grid-item v-for="g in gridEntries" :key="g.label" @click="goCategory">
             <div class="grid-icon" :style="{ color: g.color }">{{ g.icon }}</div>
             <span class="grid-label">{{ g.label }}</span>
           </van-grid-item>
@@ -151,8 +140,8 @@ const addToCart = (goods: Product) => {
         </div>
         <div class="goods-grid">
           <div v-for="g in goodsList" :key="g.id" class="goods-card">
-            <div class="goods-img">
-              <img v-if="g.image" :src="g.image" class="goods-image" alt="" />
+            <div class="goods-img" :style="{ background: g.bg }">
+              <img v-if="g.emoji" :src="g.emoji" class="goods-image" alt="" />
               <span v-else class="goods-emoji">📦</span>
             </div>
             <div class="goods-body">
@@ -160,7 +149,7 @@ const addToCart = (goods: Product) => {
               <div class="goods-price-row">
                 <span class="price-symbol">¥</span>
                 <span class="price-num">{{ g.price }}</span>
-                <span v-if="g.seckillPrice" class="seckill-tag">秒杀 ¥{{ g.seckillPrice }}</span>
+                <span v-if="g.flashPrice" class="seckill-tag">秒杀 ¥{{ g.flashPrice }}</span>
               </div>
               <div class="goods-bottom">
                 <span class="goods-type">{{ g.type || '好物' }}</span>
@@ -190,13 +179,16 @@ const addToCart = (goods: Product) => {
   background: linear-gradient(180deg, #ff4d2d 0%, #ff6034 85%, transparent 100%);
   padding: 8px 12px 28px;
 }
+
 .header-inner {
   max-width: 1200px;
   margin: 0 auto;
 }
+
 .search-wrap :deep(.van-search) {
   padding: 0;
 }
+
 .search-wrap :deep(.van-search__content) {
   border-radius: 22px;
   background: #fff;
@@ -217,10 +209,12 @@ const addToCart = (goods: Product) => {
   position: relative;
   z-index: 2;
 }
+
 .banner-swipe {
   border-radius: 12px;
   height: 130px;
 }
+
 .banner-card {
   height: 130px;
   display: flex;
@@ -229,16 +223,19 @@ const addToCart = (goods: Product) => {
   padding: 0 24px;
   color: #fff;
 }
+
 .banner-title {
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 1px;
 }
+
 .banner-sub {
   margin-top: 6px;
   font-size: 13px;
   opacity: 0.9;
 }
+
 .banner-emoji {
   font-size: 52px;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
@@ -251,13 +248,16 @@ const addToCart = (goods: Product) => {
   border-radius: 12px;
   padding: 6px 0;
 }
+
 .grid {
   background: transparent;
 }
+
 .grid-icon {
   font-size: 26px;
   margin-bottom: 4px;
 }
+
 .grid-label {
   font-size: 12px;
   color: #333;
@@ -274,10 +274,12 @@ const addToCart = (goods: Product) => {
   justify-content: space-between;
   color: #fff;
 }
+
 .flash-title {
   font-size: 16px;
   font-weight: 700;
 }
+
 .flash-end {
   margin-left: 10px;
   font-size: 12px;
@@ -285,6 +287,7 @@ const addToCart = (goods: Product) => {
   padding: 2px 8px;
   border-radius: 10px;
 }
+
 .flash-more {
   font-size: 13px;
   opacity: 0.9;
@@ -299,9 +302,11 @@ const addToCart = (goods: Product) => {
   padding-bottom: 4px;
   scrollbar-width: none;
 }
+
 .flash-goods::-webkit-scrollbar {
   display: none;
 }
+
 .flash-item {
   flex: 0 0 108px;
   background: #fff;
@@ -309,6 +314,7 @@ const addToCart = (goods: Product) => {
   padding: 8px;
   box-sizing: border-box;
 }
+
 .flash-img {
   height: 78px;
   border-radius: 8px;
@@ -317,26 +323,31 @@ const addToCart = (goods: Product) => {
   justify-content: center;
   font-size: 34px;
 }
+
 .flash-name {
   font-size: 12px;
   color: #333;
   margin-top: 6px;
 }
+
 .flash-price-row {
   display: flex;
   align-items: baseline;
   margin-top: 4px;
 }
+
 .flash-symbol {
   font-size: 11px;
   color: #ff2d4b;
   font-weight: 700;
 }
+
 .flash-price {
   font-size: 16px;
   color: #ff2d4b;
   font-weight: 700;
 }
+
 .flash-origin {
   margin-left: 6px;
   font-size: 10px;
@@ -348,11 +359,13 @@ const addToCart = (goods: Product) => {
 .goods-section {
   margin: 0 12px;
 }
+
 .section-title {
   display: flex;
   align-items: center;
   padding: 12px 0 10px;
 }
+
 .title-bar {
   width: 4px;
   height: 16px;
@@ -360,11 +373,13 @@ const addToCart = (goods: Product) => {
   border-radius: 2px;
   margin-right: 8px;
 }
+
 .title-text {
   font-size: 17px;
   font-weight: 700;
   color: #222;
 }
+
 .title-sub {
   margin-left: 8px;
   font-size: 12px;
@@ -376,6 +391,7 @@ const addToCart = (goods: Product) => {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
+
 .goods-card {
   background: #fff;
   border-radius: 12px;
@@ -383,6 +399,7 @@ const addToCart = (goods: Product) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .goods-img {
   height: 130px;
   display: flex;
@@ -390,50 +407,60 @@ const addToCart = (goods: Product) => {
   justify-content: center;
   overflow: hidden;
 }
+
 .goods-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .goods-emoji {
   font-size: 52px;
 }
+
 .goods-body {
   padding: 8px 10px 10px;
 }
+
 .goods-name {
   font-size: 13px;
   color: #333;
   line-height: 1.4;
   min-height: 36px;
 }
+
 .goods-price-row {
   margin-top: 6px;
   display: flex;
   align-items: baseline;
 }
+
 .price-symbol {
   font-size: 12px;
   color: #ff2d4b;
   font-weight: 700;
 }
+
 .price-num {
   font-size: 18px;
   color: #ff2d4b;
   font-weight: 700;
 }
+
 .origin-price {
   margin-left: 6px;
   font-size: 11px;
   color: #b0b0b0;
   text-decoration: line-through;
 }
+
 .goods-bottom {
   margin-top: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .seckill-tag {
   margin-left: 6px;
   font-size: 11px;
@@ -442,10 +469,12 @@ const addToCart = (goods: Product) => {
   border-radius: 8px;
   padding: 1px 6px;
 }
+
 .goods-type {
   font-size: 11px;
   color: #999;
 }
+
 .cart-btn {
   width: 24px;
   height: 24px;
@@ -464,74 +493,93 @@ const addToCart = (goods: Product) => {
 
 /* ========== PC 响应式（≥768px） ========== */
 @media (min-width: 768px) {
+
   /* 页面容器作为滚动容器，滚动条出现在 home-page 区域 */
   .home-page {
     height: 100%;
     overflow-y: auto;
     padding-bottom: 20px;
   }
+
   /* 顶部搜索栏由 PC 导航承担，隐藏页面内搜索栏 */
   .header {
     display: none;
   }
+
   .home-main {
     padding: 20px 24px;
     box-sizing: border-box;
   }
+
   /* 轮播更高 */
   .banner-wrap {
     margin: 0 0 16px;
   }
+
   .banner-swipe,
   .banner-card {
     height: 260px;
   }
+
   .banner-title {
     font-size: 32px;
   }
+
   .banner-sub {
     font-size: 16px;
   }
+
   .banner-emoji {
     font-size: 84px;
   }
+
   /* 金刚区、秒杀 */
   .grid-card {
     margin: 0 0 16px;
     padding: 12px 0;
   }
+
   .grid-icon {
     font-size: 30px;
   }
+
   .grid-label {
     font-size: 13px;
   }
+
   .flash-card {
     margin: 0 0 20px;
     padding: 14px 20px;
   }
+
   /* 商品网格自适应多列 */
   .goods-section {
     margin: 0;
   }
+
   .goods-grid {
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 16px;
   }
+
   .goods-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   }
+
   .goods-img {
     height: 200px;
   }
+
   .goods-emoji {
     font-size: 68px;
   }
+
   .goods-name {
     font-size: 14px;
     min-height: 40px;
   }
+
   .bottom-space {
     height: 40px;
   }

@@ -1,5 +1,5 @@
 import { get, post, put, del } from '@/utils/request'
-
+import type { Goods } from '@/store/goods';
 /** 商品数据结构（与后端 /api/product 返回一致） */
 export interface Product {
   id: number
@@ -35,7 +35,7 @@ export interface ProductPayload {
  * 直接调用 request.get<T> 只会传一个泛型，返回类型会变成 AxiosResponse<T> 包装导致 result.code / result.data 类型报错。
  */
 export const getProductList = (type?: string) =>
-  get<ApiResponse<Product[]>>('/products', {
+  get<ApiResponse<Goods[]>>('/products', {
     params: type ? { type } : undefined,
   })
 
