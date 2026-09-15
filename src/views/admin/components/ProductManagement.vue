@@ -7,7 +7,7 @@
     </div>
     <div class="table-wrap">
       <base-table :columns="productTableColumns" :table-data="tableData" row-key="id">
-        <template #operate="{ row }">
+        <template #cell-operate="{ row }">
           <van-button size="mini" type="primary" plain @click="editGoods(row)">
             编辑
           </van-button>
@@ -71,7 +71,7 @@ const removeGoods = (row: Goods) => {
 const productTableColumns: TableColumn[] = [
   { key: 'id', label: 'ID', width: 60 },
   { key: 'name', label: '商品名称' },
-  { key: 'emoji', label: '图片' },
+  { key: 'emoji', label: '图片', width: 120 },
   { key: 'price', label: '现价', },
   { key: 'originPrice', label: '原价' },
   { key: 'flashPrice', label: '秒杀价' },
