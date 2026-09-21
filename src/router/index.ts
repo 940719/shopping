@@ -8,6 +8,8 @@ import CartPage from '@/views/cart/CartPage.vue'
 import MinePage from '@/views/mine/MinePage.vue'
 import LoginPage from '@/views/login/LoginPage.vue'
 import AdminPage from '@/views/admin/AdminPage.vue'
+import UserManagement from '@/views/admin/components/UserManagement.vue'
+import ProductManagement from '@/views/admin/components/ProductManagement.vue'
 import { useUserStore } from '@/store/user'
 
 // 路由数组，类型 RouteRecordRaw
@@ -70,10 +72,29 @@ export const routes: RouteRecordRaw[] = [
     path: '/admin',
     name: 'Admin',
     component: AdminPage,
+    redirect: '/admin/user',
     meta: {
       title: '管理后台',
       requiresAdmin: true // 需要管理员权限
-    }
+    },
+    children: [
+      {
+        path: 'user',
+        name: 'AdminUser',
+        component: UserManagement,
+        meta: {
+          title: '用户管理'
+        }
+      },
+      {
+        path: 'goods',
+        name: 'AdminGoods',
+        component: ProductManagement,
+        meta: {
+          title: '商品管理'
+        }
+      }
+    ]
   },
   {
     path: '/user',
@@ -103,7 +124,7 @@ router.beforeEach((to, _from, next) => {
   document.title = (to.meta.title as string) || '商城'
 
   // 管理后台：未登录 → 登录页（带回跳），非管理员 → 首页
-  if (to.meta.requiresAdmin) {
+  if (to.matched.some((record) => record.meta.requiresAdmin)) {
     const userStore = useUserStore()
     if (!userStore.isLogin) {
       next({ path: '/login', query: { redirect: to.fullPath } })

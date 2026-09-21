@@ -139,6 +139,13 @@ onMounted(() => {
 })
 </script>
 <style lang="css" scoped>
+.panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  height: 100%;
+}
+
 .panel-header {
   display: flex;
   align-items: center;

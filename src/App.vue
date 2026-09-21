@@ -47,7 +47,7 @@ const goLogin = () => {
 const handleLogout = () => {
   userStore.logout()
   showToast('已退出登录')
-  if (route.path === '/admin') router.push('/home')
+  if (route.path.startsWith('/admin')) router.push('/home')
 }
 
 const init = async () => {

@@ -1,5 +1,6 @@
 import { get, post, put, del } from '@/utils/request'
 import type { Goods } from '@/store/goods';
+import type { ApiResponse } from './index'
 /** 商品数据结构（与后端 /api/product 返回一致） */
 export interface Product {
   id: number
@@ -10,12 +11,6 @@ export interface Product {
   image: string | null // data URI(base64) 或 URL，可直接用于 <img :src>
 }
 
-/** 后端统一响应包装 { code, data, msg } */
-export interface ApiResponse<T> {
-  code: number
-  data: T
-  msg: string
-}
 
 /** 新增/修改商品的请求体 */
 export interface ProductPayload {

@@ -1,14 +1,37 @@
-import request from '@/utils/request'
+import { get, post, put, del } from '@/utils/request'
+import type { ApiResponse } from './index'
 
+export type RoleCode = 1 | 2 | 3
 
-interface UserData {
+// 用户完整类型，和后端toUserJSON返回结构一一对应
+export interface UserData {
     id: number
     name: string
-    age: number
-};
+    nickname?: string
+    phone?: string
+    avatar?: string
+    role: RoleCode // 角色数字类型 1|2|3
+    createTime?: string
+}
+
+export const ROLE_MAP: Record<RoleCode, string> = {
+    1: '超级管理员',
+    2: '管理员',
+    3: '普通用户',
+}
+
+export const ROLE_OPTIONS = [
+    { value: 1 as RoleCode, label: '超级管理员' },
+    { value: 2 as RoleCode, label: '管理员' },
+    { value: 3 as RoleCode, label: '普通用户' },
+]
+
+export function getRoleLabel(code: number): string {
+    return ROLE_MAP[code as RoleCode] ?? '未知角色'
+}
 
 export const getUserList = () => {
-    return request.get('/users')
+    return get<ApiResponse<UserData[]>>('/users')
 };
 
 /**
@@ -17,7 +40,7 @@ export const getUserList = () => {
  * @returns 
  */
 export const postUser = (data: UserData) => {
-    return request.post('/user', data)
+    return post<ApiResponse<UserData>>('/user', data)
 };
 
 /**
@@ -26,7 +49,7 @@ export const postUser = (data: UserData) => {
  * @returns 
  */
 export const getUserById = (id: number) => {
-    return request.get(`/user/${id}`)
+    return get<ApiResponse<UserData>>(`/user/${id}`)
 };
 
 /**
@@ -35,7 +58,7 @@ export const getUserById = (id: number) => {
  * @param data
  */
 export const putUserById = (id: number, data: UserData) => {
-    return request.put(`/user/${id}`, data)
+    return put<ApiResponse<UserData>>(`/user/${id}`, data)
 }
 
 /**
@@ -44,5 +67,5 @@ export const putUserById = (id: number, data: UserData) => {
  * @returns     
  */
 export const deleteUserById = (id: number) => {
-    return request.delete(`/user/${id}`)
+    return del<ApiResponse<number>>(`/user/${id}`)
 }

@@ -29,7 +29,7 @@
           <td v-for="column in columns" :key="column.key" :style="getThTdStyle(column)"
             @mouseenter="handleCellEnter($event, row, column)" @mouseleave="handleCellLeave">
             <span class="cell-text">
-              {{ row[column.key] }}
+              {{ column.render ? column.render(row) : row[column.key] }}
             </span>
             <slot :name="`cell-${column.key}`" :row="row" :column="column" />
           </td>
