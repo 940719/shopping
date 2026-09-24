@@ -2,7 +2,7 @@ name: 前端自动部署
 on:
   push:
     branches: [ master ]
-  workflow_dispatch: # 支持页面手动点按钮执行
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -18,7 +18,7 @@ jobs:
 
       - name: 安装依赖 & 打包
         run: |
-          npm install
+          npm install --ignore-platform
           npm run build
 
       - name: 通过SSH上传dist到阿里云服务器
