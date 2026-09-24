@@ -33,7 +33,7 @@ const removeUser = (u: UserRow) => {
 /* 角色 / 状态 / 操作列由插槽渲染，render 返回空串避免显示原始文本 */
 const userTableColumns: TableColumn[] = [
   { key: 'id', label: 'ID' },
-  { key: 'username', label: '用户名' },
+  { key: 'name', label: '用户名' },
   { key: 'nickname', label: '昵称' },
   { key: 'phone', label: '电话' },
   { key: 'role', label: '角色', render: () => '' },
@@ -43,7 +43,7 @@ const userTableColumns: TableColumn[] = [
 ]
 const initUserList = async () => {
   const res = await getUserList()
-  if (res.code === 0) {
+  if (res.code === 200) {
     usersList.value = res.data
   } else {
     showToast(res.msg)

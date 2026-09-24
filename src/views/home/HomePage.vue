@@ -152,7 +152,7 @@ const addToCart = (goods: Goods) => {
                 <span v-if="g.flashPrice" class="seckill-tag">秒杀 ¥{{ g.flashPrice }}</span>
               </div>
               <div class="goods-bottom">
-                <span class="goods-type">{{ g.type || '好物' }}</span>
+                <span class="goods-sales">已售 {{ g.sales || '0' }}</span>
                 <button class="cart-btn" @click.stop="addToCart(g)">
                   <van-icon name="cart-o" />
                 </button>
@@ -470,7 +470,7 @@ const addToCart = (goods: Goods) => {
   padding: 1px 6px;
 }
 
-.goods-type {
+.goods-sales {
   font-size: 11px;
   color: #999;
 }

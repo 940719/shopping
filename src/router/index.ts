@@ -1,18 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router'
-// 页面组件
-import UserPage from '@/views/user/userPage.vue'
-import HomePage from '@/views/home/HomePage.vue'
-import CategoryPage from '@/views/category/CategoryPage.vue'
-import CartPage from '@/views/cart/CartPage.vue'
-import MinePage from '@/views/mine/MinePage.vue'
-import LoginPage from '@/views/login/LoginPage.vue'
-import AdminPage from '@/views/admin/AdminPage.vue'
-import UserManagement from '@/views/admin/components/UserManagement.vue'
-import ProductManagement from '@/views/admin/components/ProductManagement.vue'
 import { useUserStore } from '@/store/user'
 
-// 路由数组，类型 RouteRecordRaw
+// 路由数组，类型 RouteRecordRaw（页面组件全部懒加载）
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -22,7 +12,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/home',
     name: 'Home',
-    component: HomePage,
+    component: () => import('@/views/home/HomePage.vue'),
     meta: {
       title: '商城首页',
       showTabbar: true,   // 控制底部导航显示
@@ -32,7 +22,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/category',
     name: 'Category',
-    component: CategoryPage,
+    component: () => import('@/views/category/CategoryPage.vue'),
     meta: {
       title: '商品分类',
       showTabbar: true,
@@ -42,7 +32,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/cart',
     name: 'Cart',
-    component: CartPage,
+    component: () => import('@/views/cart/CartPage.vue'),
     meta: {
       title: '购物车',
       showTabbar: true,
@@ -52,7 +42,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/mine',
     name: 'Mine',
-    component: MinePage,
+    component: () => import('@/views/mine/MinePage.vue'),
     meta: {
       title: '个人中心',
       showTabbar: true,
@@ -63,7 +53,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginPage,
+    component: () => import('@/views/login/LoginPage.vue'),
     meta: {
       title: '登录'
     }
@@ -71,7 +61,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     name: 'Admin',
-    component: AdminPage,
+    component: () => import('@/views/admin/AdminPage.vue'),
     redirect: '/admin/user',
     meta: {
       title: '管理后台',
@@ -81,7 +71,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'user',
         name: 'AdminUser',
-        component: UserManagement,
+        component: () => import('@/views/admin/components/UserManagement.vue'),
         meta: {
           title: '用户管理'
         }
@@ -89,7 +79,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'goods',
         name: 'AdminGoods',
-        component: ProductManagement,
+        component: () => import('@/views/admin/components/ProductManagement.vue'),
         meta: {
           title: '商品管理'
         }
@@ -99,7 +89,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/user',
     name: 'User',
-    component: UserPage,
+    component: () => import('@/views/user/userPage.vue'),
     meta: {
       title: '用户管理'
     }
