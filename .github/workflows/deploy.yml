@@ -18,8 +18,10 @@ jobs:
 
       - name: 安装依赖 & 打包
         run: |
-          npm install --ignore-platform
+          rm -f package-lock.json
+          npm install
           npm run build
+
 
       - name: 通过SSH上传dist到阿里云服务器
         uses: appleboy/scp-action@master
