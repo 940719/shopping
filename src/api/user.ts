@@ -30,6 +30,15 @@ export function getRoleLabel(code: number): string {
     return ROLE_MAP[code as RoleCode] ?? '未知角色'
 }
 
+/**
+ * 登录
+ * POST /api/login  body: { name, password }
+ * 返回用户信息（不含密码），role 为角色数字码 1|2|3
+ */
+export const login = (name: string, password: string) => {
+    return post<ApiResponse<UserData>>('/login', { name, password })
+};
+
 export const getUserList = () => {
     return get<ApiResponse<UserData[]>>('/users')
 };

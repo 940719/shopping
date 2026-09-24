@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { login as loginRequest, type UserData } from '@/api/user'
 
 export interface UserInfo {
   username: string
@@ -34,25 +35,27 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     /**
-     * 演示登录：内置两个测试账号
-     * - admin / admin123 → 管理员
-     * - user / user123   → 普通用户
-     * 后续可替换为真实接口调用
+     * 真实登录：调用后端 POST /api/login 校验数据库账号密码
+     * 后端返回角色数字码：1 超级管理员 / 2 管理员 / 3 普通用户
+     * 前端映射：1、2 → admin（可进入管理后台），3 → user
      */
-    login(username: string, password: string): { ok: boolean; msg: string } {
-      const name = username.trim()
-      if (name === 'admin' && password === 'admin123') {
-        this.token = 'mock-token-admin'
-        this.userInfo = { username: 'admin', nickname: '系统管理员', role: 'admin' }
-      } else if (name === 'user' && password === 'user123') {
-        this.token = 'mock-token-user'
-        this.userInfo = { username: 'user', nickname: '商城会员', role: 'user' }
-      } else {
-        return { ok: false, msg: '用户名或密码错误' }
+    async login(username: string, password: string): Promise<{ ok: boolean; msg: string }> {
+      try {
+        const res = await loginRequest(username.trim(), password)
+        if (res.code !== 200 || !res.data) {
+          return { ok: false, msg: res.msg || '登录失败' }
+        }
+        const u: UserData = res.data
+        const role: 'admin' | 'user' = u.role === 3 ? 'user' : 'admin'
+        this.token = `token-${u.id}`
+        this.userInfo = { username: u.name, nickname: u.nickname || u.name, role }
+        localStorage.setItem('token', this.token)
+        localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+        return { ok: true, msg: '' }
+      } catch (error) {
+        console.error('登录失败：', error)
+        return { ok: false, msg: '网络异常，请稍后重试' }
       }
-      localStorage.setItem('token', this.token)
-      localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-      return { ok: true, msg: '' }
     },
     logout() {
       this.token = ''

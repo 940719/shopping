@@ -19,6 +19,7 @@ export interface ProductPayload {
   price?: number
   seckillPrice?: number | null
   image?: string | null
+  emoji?: string | null
 }
 
 /**
@@ -70,6 +71,19 @@ export const uploadProductImage = (id: number, file: File) => {
   const formData = new FormData()
   formData.append('image', file)
   return post<ApiResponse<Product>>(`/product/${id}/image`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
+/**
+ * 通用图片上传（multipart/form-data，字段名 file）
+ * POST /api/upload → { url, filename }
+ * 后端把文件保存到本地 uploads 目录，url 可直接用于 <img :src> 或存 emoji 字段
+ */
+export const uploadImage = (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return post<ApiResponse<{ url: string; filename: string }>>('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 }

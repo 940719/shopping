@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { useUserStore } from '@/store/user'
@@ -12,16 +12,15 @@ const username = ref('')
 const password = ref('')
 const loading = ref(false)
 
-const onLogin = () => {
+const onLogin = async () => {
   if (!username.value.trim() || !password.value) {
     showToast('请输入用户名和密码')
     return
   }
   loading.value = true
-  // 模拟登录（真实项目此处调用登录接口）
-  setTimeout(() => {
-    const res = userStore.login(username.value, password.value)
-    loading.value = false
+  try {
+    // 真实登录：调用后端接口校验数据库账号密码
+    const res = await userStore.login(username.value, password.value)
     if (!res.ok) {
       showToast(res.msg)
       return
@@ -34,28 +33,12 @@ const onLogin = () => {
     } else {
       router.push(userStore.isAdmin ? '/admin' : '/home')
     }
-  }, 300)
+  } finally {
+    loading.value = false
+  }
 }
 
 const goHome = () => router.push('/home')
-
-/** 演示账号一键登录 */
-const quickLogin = (role: 'admin' | 'user') => {
-  const account = role === 'admin'
-    ? { username: 'admin', password: 'admin123' }
-    : { username: 'user', password: 'user123' }
-  username.value = account.username
-  password.value = account.password
-  onLogin()
-}
-
-// 支持 ?quick=admin / ?quick=user 参数直达登录（演示用）
-onMounted(() => {
-  const quick = route.query.quick as string | undefined
-  if (quick === 'admin' || quick === 'user') {
-    quickLogin(quick)
-  }
-})
 </script>
 
 <template>
@@ -100,33 +83,6 @@ onMounted(() => {
           </van-button>
         </div>
       </van-form>
-
-      <div class="demo-tips">
-        <div class="tips-title">演示账号（点击一键登录）</div>
-        <div class="quick-row">
-          <van-button
-            size="small"
-            round
-            type="danger"
-            plain
-            class="quick-btn"
-            @click="quickLogin('admin')"
-          >
-            管理员一键登录
-          </van-button>
-          <van-button
-            size="small"
-            round
-            plain
-            class="quick-btn quick-user"
-            @click="quickLogin('user')"
-          >
-            用户一键登录
-          </van-button>
-        </div>
-        <div class="tips-item">管理员：admin / admin123（可进入管理后台）</div>
-        <div class="tips-item">普通用户：user / user123</div>
-      </div>
     </div>
   </div>
 </template>
@@ -192,38 +148,5 @@ onMounted(() => {
   border: none;
   font-weight: 600;
   letter-spacing: 4px;
-}
-.demo-tips {
-  margin-top: 24px;
-  background: #fff7f5;
-  border: 1px dashed #ffd8cf;
-  border-radius: 10px;
-  padding: 12px 14px;
-}
-.tips-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #ff4d2d;
-  margin-bottom: 8px;
-}
-.quick-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.quick-btn {
-  flex: 1;
-  border-color: #ff4d2d;
-  color: #ff4d2d;
-  font-size: 12px;
-}
-.quick-user {
-  border-color: #1890ff;
-  color: #1890ff;
-}
-.tips-item {
-  font-size: 12px;
-  color: #8c8c8c;
-  line-height: 1.8;
 }
 </style>
