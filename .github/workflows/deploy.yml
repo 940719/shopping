@@ -5,7 +5,6 @@ on:
 
 jobs:
   deploy:
-    # 重点：换成 windows-latest 虚拟机打包！
     runs-on: windows-latest
     steps:
       - name: 拉取代码
@@ -21,12 +20,18 @@ jobs:
           npm install
           npm run build
 
-      - name: 上传dist文件夹到阿里云服务器
-        uses: appleboy/scp-action@master
+      # 用ssh-action，跨平台，Windows/Linux都能用，替代scp-action
+      - name: 上传dist到服务器
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/"
-          target: "/var/www/shopping"
-          overwrite: true
+          script: |
+            cd /var/www/shopping
+            rm -rf *
+          # 把dist打包，传到服务器并解压
+          script-stop: |
+            tar -czf dist.tar.gz -C dist .
+            scp -O dist.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/shopping
+            ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd /var/www/shopping && tar -xzf dist.tar.gz && rm -f dist.tar.gz"
