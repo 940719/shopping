@@ -2,7 +2,6 @@ name: 前端自动部署
 on:
   push:
     branches: [ master ]
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,23 +10,12 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: 安装Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24.19.0
-
-      - name: 安装依赖 & 打包
-        run: |
-          rm -f package-lock.json
-          npm install --omit=optional
-          npm run build
-
-
-      - name: 通过SSH上传dist到阿里云服务器
+      - name: 上传dist目录到服务器
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: dist/*
-          target: /var/www/dist
+          source: "dist/"
+          target: "/var/www/dist"
+          overwrite: true
