@@ -19,7 +19,7 @@ jobs:
       - name: 安装依赖 & 打包
         run: |
           rm -f package-lock.json
-          npm install --ignore-platform
+          npm install --omit=optional
           npm run build
 
 
