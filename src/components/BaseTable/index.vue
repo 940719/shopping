@@ -43,29 +43,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, type PropType } from 'vue'
+<script setup>
+import { ref, computed } from 'vue'
 import BaseTooltip from '@/components/BaseTooltip/index.vue'
-
-export interface TableColumn<T = Record<string, any>> {
-  key: string,
-  label: string,
-  width?: number | string,
-  fixed?: 'left' | 'right' | false,
-  render?: (row: T) => string,
-}
-
-interface SelectionColumn {
-  width: number | string,
-}
 
 const props = defineProps({
   tableData: {
-    type: Array as PropType<Record<string, any>[]>,
+    type: Array,
     default: () => [],
   },
   columns: {
-    type: Array as PropType<TableColumn[]>,
+    type: Array,
     required: true,
   },
   loading: {
@@ -77,19 +65,19 @@ const props = defineProps({
     default: '500px',
   },
   selectionType: {
-    type: String as PropType<'checkbox' | 'radio' | undefined>,
+    type: String,
     default: undefined,
   },
   selectionColumn: {
-    type: Object as PropType<SelectionColumn>,
+    type: Object,
     default: () => ({ width: '55px' }),
   },
   getSelectable: {
-    type: Function as PropType<(row: Record<string, any>) => boolean>,
+    type: Function,
     default: undefined,
   },
   tooltipTheme: {
-    type: String as PropType<'dark' | 'light'>,
+    type: String,
     default: 'dark',
   },
   rowKey: {
@@ -101,7 +89,7 @@ const props = defineProps({
 const emit = defineEmits(['row-click', 'selection-change'])
 
 // 选中项
-const selectedKeys = ref<(string | number)[]>([])
+const selectedKeys = ref([])
 
 // 全选状态
 const isAllSelected = computed({
@@ -110,7 +98,7 @@ const isAllSelected = computed({
     if (!availableRows.length) return false
     return availableRows.every(item => selectedKeys.value.includes(item[props.rowKey]))
   },
-  set(val: boolean) {
+  set(val) {
     const availableRows = props.tableData.filter(item => props.getSelectable?.(item) !== false)
     if (val) {
       selectedKeys.value = availableRows.map(item => item[props.rowKey])
@@ -125,18 +113,18 @@ const handleSelectAll = () => {
   // computed setter 自动处理
 }
 
-const handleRowClick = (row: Record<string, any>) => {
+const handleRowClick = (row) => {
   emit('row-click', row)
 }
 
 // ===== Tooltip 内部逻辑（边界检测升级，对外无感知）=====
 const tooltipShow = ref(false)
 const tooltipContent = ref('')
-const tooltipRect = ref<DOMRect>()
+const tooltipRect = ref()
 
-const handleCellEnter = (e: MouseEvent, row: Record<string, any>, column: TableColumn) => {
-  const el = e.currentTarget as HTMLElement
-  const textEl = el.querySelector('.cell-text') as HTMLElement
+const handleCellEnter = (e, row, column) => {
+  const el = e.currentTarget
+  const textEl = el.querySelector('.cell-text')
   if (!textEl) return
   // 只有文本溢出才显示tooltip
   if (textEl.scrollWidth > textEl.clientWidth) {
@@ -148,15 +136,15 @@ const handleCellEnter = (e: MouseEvent, row: Record<string, any>, column: TableC
   }
 }
 
-const handleCellLeave = (e: MouseEvent) => {
-  const el = e.currentTarget as HTMLElement
+const handleCellLeave = (e) => {
+  const el = e.currentTarget
   el.style.cursor = ''
   tooltipShow.value = false
 }
 
 // 列宽样式
-const getThTdStyle = (col: { width?: number | string; fixed?: 'left' | 'right' | false }) => {
-  const style: Record<string, string> = {}
+const getThTdStyle = (col) => {
+  const style = {}
   if (col.width) {
     style.width = typeof col.width === 'number' ? `${col.width}px` : col.width
   }

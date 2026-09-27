@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { getUserList } from './api/user'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -22,19 +22,19 @@ const TAB_LABELS = ['首页', '分类', '购物车', '我的']
 watch(
   () => route.path,
   () => {
-    const index = route.meta.tabbarIndex as number | undefined
+    const index = route.meta.tabbarIndex
     if (typeof index === 'number') active.value = index
   },
   { immediate: true }
 )
 
-const go = (path: string) => {
+const go = (path) => {
   if (route.path !== path) router.push(path)
 }
 
-const onTabChange = (index: number) => go(TAB_PATHS[index])
+const onTabChange = (index) => go(TAB_PATHS[index])
 
-const onSearch = (val: string) => {
+const onSearch = (val) => {
   // 演示：跳转到分类页（后续可接商品搜索页）
   router.push({ path: '/category', query: { keyword: val } })
 }

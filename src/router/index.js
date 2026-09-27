@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/store/user'
 
-// 路由数组，类型 RouteRecordRaw（页面组件全部懒加载）
-export const routes: RouteRecordRaw[] = [
+// 路由数组（页面组件全部懒加载）
+export const routes = [
   {
     path: '/',
     redirect: '/home' // 默认根路径 重定向到商城首页
@@ -111,7 +110,7 @@ const router = createRouter({
 
 // 全局前置守卫：设置页面标题 + 登录/管理员鉴权
 router.beforeEach((to, _from, next) => {
-  document.title = (to.meta.title as string) || '商城'
+  document.title = to.meta.title || '商城'
 
   // 管理后台：未登录 → 登录页（带回跳），非管理员 → 首页
   if (to.matched.some((record) => record.meta.requiresAdmin)) {

@@ -9,8 +9,8 @@
     </Teleport>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, type PropType, onMounted, onUnmounted, nextTick } from 'vue'
+<script setup>
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
     show: {
@@ -22,11 +22,11 @@ const props = defineProps({
         default: ''
     },
     theme: {
-        type: String as PropType<'dark' | 'light'>,
+        type: String,
         default: 'dark'
     },
     triggerRect: {
-        type: Object as PropType<DOMRect>,
+        type: Object,
         default: () => ({})
     },
     maxWidth: {
@@ -35,9 +35,9 @@ const props = defineProps({
     }
 })
 
-const tipDomRef = ref<HTMLDivElement | null>(null)
-const tooltipPos = ref<Record<string, string>>({})
-const placementClass = ref<'placement-top' | 'placement-bottom'>('placement-top')
+const tipDomRef = ref(null)
+const tooltipPos = ref({})
+const placementClass = ref('placement-top')
 
 const calcPosition = async () => {
     if (!props.triggerRect || !props.show || !tipDomRef.value) return

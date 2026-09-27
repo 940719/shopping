@@ -1,23 +1,12 @@
 import { defineStore } from 'pinia'
-import { login as loginRequest, type UserData } from '@/api/user'
-
-export interface UserInfo {
-  username: string
-  nickname: string
-  role: 'admin' | 'user'
-}
-
-interface UserState {
-  token: string
-  userInfo: UserInfo | null
-}
+import { login as loginRequest } from '@/api/user'
 
 /** 从 localStorage 恢复登录态 */
-function readStored(): UserState {
-  let userInfo: UserInfo | null = null
+function readStored() {
+  let userInfo = null
   try {
     const raw = localStorage.getItem('userInfo')
-    userInfo = raw ? (JSON.parse(raw) as UserInfo) : null
+    userInfo = raw ? JSON.parse(raw) : null
   } catch {
     userInfo = null
   }
@@ -28,7 +17,7 @@ function readStored(): UserState {
 }
 
 export const useUserStore = defineStore('user', {
-  state: (): UserState => readStored(),
+  state: () => readStored(),
   getters: {
     isLogin: (s) => !!s.token && !!s.userInfo,
     isAdmin: (s) => s.userInfo?.role === 'admin'
@@ -39,14 +28,14 @@ export const useUserStore = defineStore('user', {
      * 后端返回角色数字码：1 超级管理员 / 2 管理员 / 3 普通用户
      * 前端映射：1、2 → admin（可进入管理后台），3 → user
      */
-    async login(username: string, password: string): Promise<{ ok: boolean; msg: string }> {
+    async login(username, password) {
       try {
         const res = await loginRequest(username.trim(), password)
         if (res.code !== 200 || !res.data) {
           return { ok: false, msg: res.msg || '登录失败' }
         }
-        const u: UserData = res.data
-        const role: 'admin' | 'user' = u.role === 3 ? 'user' : 'admin'
+        const u = res.data
+        const role = u.role === 3 ? 'user' : 'admin'
         this.token = `token-${u.id}`
         this.userInfo = { username: u.name, nickname: u.nickname || u.name, role }
         localStorage.setItem('token', this.token)

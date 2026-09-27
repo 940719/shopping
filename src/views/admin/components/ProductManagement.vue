@@ -71,26 +71,25 @@
     </van-popup>
   </div>
 </template>
-<script setup lang="ts">
-import type { TableColumn } from '@/components/BaseTable/index.vue'
+<script setup>
 import { showToast, showConfirmDialog } from 'vant'
-import { type Goods, GOODS_BG_PRESETS } from '@/store/goods'
+import { GOODS_BG_PRESETS } from '@/store/goods'
 import { onMounted, ref } from 'vue'
-import { getProductList, postProduct, putProductById, uploadImage, type ProductPayload } from '@/api/product'
+import { getProductList, postProduct, putProductById, uploadImage } from '@/api/product'
 
 /* ================= 图片工具 ================= */
 /** emoji 字段存的是图片 URL（http/https 或 /uploads 开头），否则视为 emoji 字符 */
-const isImgUrl = (v: string | null | undefined) =>
+const isImgUrl = (v) =>
   !!v && (/^https?:\/\//i.test(v) || v.startsWith('/uploads/'))
 
 /* ================= 表格 ================= */
-const editGoods = (row: Goods) => {
+const editGoods = (row) => {
   editing.value = { ...row }
   isEditMode.value = true
   showEdit.value = true
 }
 
-const removeGoods = (row: Goods) => {
+const removeGoods = (row) => {
   console.log('删除商品：', row)
   showConfirmDialog({ title: '删除商品：', message: `确定删除商品「${row.name}」吗？` })
     .then(() => {
@@ -99,7 +98,7 @@ const removeGoods = (row: Goods) => {
     .catch(() => { })
 }
 
-const productTableColumns: TableColumn[] = [
+const productTableColumns = [
   { key: 'id', label: 'ID', width: 60 },
   { key: 'name', label: '商品名称' },
   { key: 'emoji', label: '图片', width: 120, render: () => '' },
@@ -112,13 +111,13 @@ const productTableColumns: TableColumn[] = [
 ]
 
 /* ================= 编辑 / 新增 ================= */
-const tableData = ref<Goods[]>([])
-const editing = ref<Goods | null>(null)
+const tableData = ref([])
+const editing = ref(null)
 const isEditMode = ref(false)
 const showEdit = ref(false)
 const saving = ref(false)
 const uploading = ref(false)
-const fileInputRef = ref<HTMLInputElement>()
+const fileInputRef = ref()
 
 const openAdd = () => {
   editing.value = {
@@ -139,8 +138,8 @@ const openAdd = () => {
 /* ================= 图片上传 ================= */
 const triggerUpload = () => fileInputRef.value?.click()
 
-const onFileChange = async (e: Event) => {
-  const input = e.target as HTMLInputElement
+const onFileChange = async (e) => {
+  const input = e.target
   const file = input.files?.[0]
   if (!file) return
   if (file.size > 5 * 1024 * 1024) {
@@ -182,7 +181,7 @@ const saveGoods = async () => {
     showToast('秒杀价不能为负数')
     return
   }
-  const payload: ProductPayload = {
+  const payload = {
     type: String(g.type),
     name: g.name.trim(),
     price: g.price,

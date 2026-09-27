@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
@@ -27,7 +27,7 @@ const onLogin = async () => {
     }
     showToast(`欢迎，${userStore.userInfo?.nickname}`)
     // 支持登录后回跳来源页
-    const redirect = route.query.redirect as string | undefined
+    const redirect = route.query.redirect
     if (redirect && redirect.startsWith('/')) {
       router.push(redirect)
     } else {

@@ -1,27 +1,16 @@
-<script setup lang="ts">
+<script setup>
 import { onMounted, ref } from 'vue'
 import { showToast, showConfirmDialog } from 'vant'
-import type { TableColumn } from '@/components/BaseTable/index.vue'
-import type { UserData, RoleCode } from '@/api/user';
 import { getUserList, ROLE_MAP } from '@/api/user';
-/* ================= 用户管理（mock） ================= */
-interface UserRow {
-  id: number
-  username: string
-  nickname: string
-  role: string
-  status: 'normal' | 'disabled'
-  regTime: string
-}
 
-const usersList = ref<UserData[]>([])
+const usersList = ref([])
 
-const toggleUser = (u: UserRow) => {
+const toggleUser = (u) => {
   u.status = u.status === 'normal' ? 'disabled' : 'normal'
   showToast(u.status === 'normal' ? '已启用' : '已禁用')
 }
 
-const removeUser = (u: UserRow) => {
+const removeUser = (u) => {
   showConfirmDialog({ title: '删除用户', message: `确定删除用户「${u.nickname}」吗？` })
     .then(() => {
       usersList.value = usersList.value.filter((x) => x.id !== u.id)
@@ -31,7 +20,7 @@ const removeUser = (u: UserRow) => {
 }
 
 /* 角色 / 状态 / 操作列由插槽渲染，render 返回空串避免显示原始文本 */
-const userTableColumns: TableColumn[] = [
+const userTableColumns = [
   { key: 'id', label: 'ID' },
   { key: 'name', label: '用户名' },
   { key: 'nickname', label: '昵称' },
@@ -64,7 +53,7 @@ onMounted(() => {
       <base-table :columns="userTableColumns" :table-data="usersList" row-key="id" container-height="none">
         <template #cell-role="{ row }">
           <span>
-            {{ ROLE_MAP[row.role as RoleCode] || '未知' }}
+            {{ ROLE_MAP[row.role] || '未知' }}
           </span>
         </template>
         <template #cell-status="{ row }">

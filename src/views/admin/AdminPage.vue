@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { useUserStore } from '@/store/user'
@@ -14,9 +14,9 @@ const menuItems = [
 ]
 
 /** 当前路由是否命中该菜单 */
-const isMenuActive = (path: string) => route.path.startsWith(path)
+const isMenuActive = (path) => route.path.startsWith(path)
 
-const goMenu = (path: string) => {
+const goMenu = (path) => {
   if (route.path !== path) router.push(path)
 }
 

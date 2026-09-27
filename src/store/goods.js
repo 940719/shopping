@@ -1,27 +1,5 @@
 import { defineStore } from 'pinia'
 
-export interface Goods {
-  id: number,
-  name: string,
-  /**商品类型 */
-  type: number,
-  /** 商品图（mock 用 emoji 表示，后续可替换为图片 URL） */
-  emoji: string,
-  /** 商品图背景渐变 */
-  bg: string,
-  /** 现价 */
-  price: number,
-  /** 原价（划线价） */
-  originPrice: number,
-  /** 秒杀价，0 表示未参与秒杀 */
-  flashPrice: number,
-  sales: number,
-}
-
-interface GoodsState {
-  goodsList: Goods[]
-}
-
 /** 商品背景渐变预设（管理后台编辑时可选） */
 export const GOODS_BG_PRESETS = [
   'linear-gradient(135deg,#e6f7ff,#bae7ff)',
@@ -35,7 +13,7 @@ export const GOODS_BG_PRESETS = [
 ]
 
 export const useGoodsStore = defineStore('goods', {
-  state: (): GoodsState => ({
+  state: () => ({
     goodsList: [
       { id: 1, name: '无线蓝牙耳机 主动降噪 长续航', type: 1, emoji: '🎧', bg: 'linear-gradient(135deg,#e6f7ff,#bae7ff)', price: 199, originPrice: 299, flashPrice: 159, sales: 12000 },
       { id: 2, name: '智能手环 心率监测 50 米防水', type: 2, emoji: '⌚', bg: 'linear-gradient(135deg,#f0f5ff,#d6e4ff)', price: 159, originPrice: 229, flashPrice: 129, sales: 8600 },
@@ -48,16 +26,16 @@ export const useGoodsStore = defineStore('goods', {
   }),
   actions: {
     /** 更新商品（管理后台编辑后调用，首页实时生效） */
-    updateGoods(goods: Goods) {
+    updateGoods(goods) {
       const i = this.goodsList.findIndex((g) => g.id === goods.id)
       if (i > -1) this.goodsList[i] = { ...goods }
     },
     /** 新增商品 */
-    addGoods(goods: Goods) {
+    addGoods(goods) {
       this.goodsList.unshift(goods)
     },
     /** 删除商品 */
-    removeGoods(id: number) {
+    removeGoods(id) {
       this.goodsList = this.goodsList.filter((g) => g.id !== id)
     }
   }

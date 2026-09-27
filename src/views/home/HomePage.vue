@@ -1,15 +1,14 @@
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-// import { useGoodsStore, type Goods } from '@/store/goods'
+// import { useGoodsStore } from '@/store/goods'
 import { getProductList } from '@/api/product';
-import type { Goods } from '@/store/goods'
 const router = useRouter()
 // const goodsStore = useGoodsStore()
 
 /* ---------- 响应式视口（PC / 移动） ---------- */
 const isPc = ref(false)
-let mq: MediaQueryList | null = null
+let mq = null
 
 const updateViewport = () => {
   isPc.value = mq ? mq.matches : window.innerWidth >= 768
@@ -32,7 +31,7 @@ const gridColumns = computed(() => (isPc.value ? 8 : 4))
 /* ---------- 推荐商品（来自全局 store，管理后台修改后实时生效） ---------- */
 // const goodsList = computed(() => goodsStore.goodsList)
 
-const goodsList = ref<Goods[]>([]);
+const goodsList = ref([]);
 
 
 const initProductList = async () => {
@@ -49,7 +48,7 @@ const initProductList = async () => {
 
 /* ---------- 搜索 ---------- */
 const keyword = ref('')
-const onSearch = (val: string) => {
+const onSearch = (val) => {
   // 演示：跳转到分类页（后续可接商品搜索页）
   router.push({ path: '/category', query: { keyword: val } })
 }
@@ -77,7 +76,7 @@ const gridEntries = [
 const countdown = '12:30:00'
 
 const goCategory = () => router.push('/category')
-const addToCart = (goods: Goods) => {
+const addToCart = (goods) => {
   // 演示：加入购物车（后续接 Pinia 购物车状态）
   console.log('加入购物车：', goods.name)
 }

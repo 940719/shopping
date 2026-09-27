@@ -1,21 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import { ref, computed } from 'vue'
 
-interface CategoryGoods {
-  id: number
-  name: string
-  emoji: string
-  price: number
-}
-
-interface Category {
-  id: number
-  name: string
-  goods: CategoryGoods[]
-}
-
 /* mock 分类数据（后续可替换为接口） */
-const categories: Category[] = [
+const categories = [
   {
     id: 1, name: '推荐',
     goods: [
