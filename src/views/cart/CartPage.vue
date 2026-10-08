@@ -1,15 +1,29 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 
 /* 猜你喜欢（mock，后续替换为接口） */
 const recommend = [
-  { id: 1, name: '无线蓝牙耳机 主动降噪', emoji: '🎧', bg: 'linear-gradient(135deg,#e6f7ff,#bae7ff)', price: 199, originPrice: 299 },
-  { id: 2, name: '智能保温杯 316 不锈钢', emoji: '☕', bg: 'linear-gradient(135deg,#e6fffb,#b5f5ec)', price: 79, originPrice: 119 }
-]
+  {
+    id: 1,
+    name: '无线蓝牙耳机 主动降噪',
+    emoji: '🎧',
+    bg: 'linear-gradient(135deg,#e6f7ff,#bae7ff)',
+    price: 199,
+    originPrice: 299,
+  },
+  {
+    id: 2,
+    name: '智能保温杯 316 不锈钢',
+    emoji: '☕',
+    bg: 'linear-gradient(135deg,#e6fffb,#b5f5ec)',
+    price: 79,
+    originPrice: 119,
+  },
+];
 
-const goShopping = () => router.push('/home')
+const goShopping = () => router.push('/home');
 </script>
 
 <template>

@@ -1,44 +1,44 @@
 <script setup>
-import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { showToast } from 'vant'
-import { useUserStore } from '@/store/user'
+import { ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import { useUserStore } from '@/store/user';
 
-const router = useRouter()
-const route = useRoute()
-const userStore = useUserStore()
+const router = useRouter();
+const route = useRoute();
+const userStore = useUserStore();
 
-const username = ref('')
-const password = ref('')
-const loading = ref(false)
+const username = ref('');
+const password = ref('');
+const loading = ref(false);
 
 const onLogin = async () => {
   if (!username.value.trim() || !password.value) {
-    showToast('请输入用户名和密码')
-    return
+    showToast('请输入用户名和密码');
+    return;
   }
-  loading.value = true
+  loading.value = true;
   try {
     // 真实登录：调用后端接口校验数据库账号密码
-    const res = await userStore.login(username.value, password.value)
+    const res = await userStore.login(username.value, password.value);
     if (!res.ok) {
-      showToast(res.msg)
-      return
+      showToast(res.msg);
+      return;
     }
-    showToast(`欢迎，${userStore.userInfo?.nickname}`)
+    showToast(`欢迎，${userStore.userInfo?.nickname}`);
     // 支持登录后回跳来源页
-    const redirect = route.query.redirect
+    const redirect = route.query.redirect;
     if (redirect && redirect.startsWith('/')) {
-      router.push(redirect)
+      router.push(redirect);
     } else {
-      router.push(userStore.isAdmin ? '/admin' : '/home')
+      router.push(userStore.isAdmin ? '/admin' : '/home');
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-const goHome = () => router.push('/home')
+const goHome = () => router.push('/home');
 </script>
 
 <template>

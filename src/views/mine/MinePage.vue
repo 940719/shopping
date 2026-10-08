@@ -1,44 +1,44 @@
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
-import { useUserStore } from '@/store/user'
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import { useUserStore } from '@/store/user';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
-const nickname = computed(() => userStore.userInfo?.nickname || '未登录')
+const nickname = computed(() => userStore.userInfo?.nickname || '未登录');
 const desc = computed(() =>
   userStore.isLogin
     ? userStore.isAdmin
       ? '管理员账号，可进入管理后台'
       : '已登录，享受会员权益'
     : '登录后享受更多会员权益'
-)
+);
 
 const onLoginClick = () => {
   if (userStore.isLogin) {
-    userStore.logout()
-    showToast('已退出登录')
+    userStore.logout();
+    showToast('已退出登录');
   } else {
-    router.push('/login')
+    router.push('/login');
   }
-}
+};
 
 const orderEntries = [
   { icon: '💳', label: '待付款' },
   { icon: '📦', label: '待发货' },
   { icon: '🚚', label: '待收货' },
   { icon: '⭐', label: '待评价' },
-  { icon: '🛠️', label: '退款/售后' }
-]
+  { icon: '🛠️', label: '退款/售后' },
+];
 
 const menuEntries = [
   { icon: '📍', label: '收货地址', color: '#ff6034' },
   { icon: '🎟️', label: '优惠券', color: '#ff2d4b' },
   { icon: '❤️', label: '我的收藏', color: '#ff85c0' },
-  { icon: '⚙️', label: '设置', color: '#8c8c8c' }
-]
+  { icon: '⚙️', label: '设置', color: '#8c8c8c' },
+];
 </script>
 
 <template>

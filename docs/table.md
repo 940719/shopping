@@ -34,23 +34,23 @@ src/
 
 ## 📝 BaseTable Props
 
-| 参数 | 类型 | 默认值 | 必填 | 说明 |
-| ---- | ---- | ---- | ---- | ---- |
-| columns | `TableColumn[]` | - | ✅ | 表格列配置 |
-| tableData | `Record<string, any>[]` | `[]` | ❌ | 表格数据源 |
-| rowKey | `string` | `'id'` | ❌ | 行唯一标识字段名 |
-| containerHeight | `string` | `'400px'` | ❌ | 表格容器最大高度，超出出现滚动条 |
-| loading | `boolean` | `false` | ❌ | 加载状态，显示遮罩 |
-| selectionType | `'' \| 'checkbox' \| 'radio'` | `''` | ❌ | 选择类型，空字符串 = 关闭选择列 |
-| getSelectable | `(row) => boolean` | `undefined` | ❌ | 判断该行是否允许勾选，返回 `false` 则禁用 |
+| 参数            | 类型                          | 默认值      | 必填 | 说明                                      |
+| --------------- | ----------------------------- | ----------- | ---- | ----------------------------------------- |
+| columns         | `TableColumn[]`               | -           | ✅   | 表格列配置                                |
+| tableData       | `Record<string, any>[]`       | `[]`        | ❌   | 表格数据源                                |
+| rowKey          | `string`                      | `'id'`      | ❌   | 行唯一标识字段名                          |
+| containerHeight | `string`                      | `'400px'`   | ❌   | 表格容器最大高度，超出出现滚动条          |
+| loading         | `boolean`                     | `false`     | ❌   | 加载状态，显示遮罩                        |
+| selectionType   | `'' \| 'checkbox' \| 'radio'` | `''`        | ❌   | 选择类型，空字符串 = 关闭选择列           |
+| getSelectable   | `(row) => boolean`            | `undefined` | ❌   | 判断该行是否允许勾选，返回 `false` 则禁用 |
 
 ---
 
 ## 📤 BaseTable Emits
 
-| 事件名 | 参数 | 说明 |
-| ---- | ---- | ---- |
-| `row-click` | `row: 行数据` | 点击表格行时触发 |
+| 事件名             | 参数                       | 说明             |
+| ------------------ | -------------------------- | ---------------- |
+| `row-click`        | `row: 行数据`              | 点击表格行时触发 |
 | `selection-change` | `selectedRows: 选中行数组` | 选中项变化时触发 |
 
 ---
@@ -59,11 +59,11 @@ src/
 
 ```ts
 export interface TableColumn<T = Record<string, any>> {
-  key: string                                      // 列字段名，对应数据对象的key
-  label: string                                    // 表头显示文字
-  width?: number | string                          // 列宽：80 / "150" / "150px" / "20%"
-  fixed?: 'left' | 'right' | false                 // 固定列：左侧 / 右侧 / 不固定
-  render?: (row: T, column: TableColumn<T>) => string | VNode  // 自定义渲染函数（可选）
+  key: string; // 列字段名，对应数据对象的key
+  label: string; // 表头显示文字
+  width?: number | string; // 列宽：80 / "150" / "150px" / "20%"
+  fixed?: 'left' | 'right' | false; // 固定列：左侧 / 右侧 / 不固定
+  render?: (row: T, column: TableColumn<T>) => string | VNode; // 自定义渲染函数（可选）
 }
 ```
 
@@ -87,10 +87,10 @@ export interface TableColumn<T = Record<string, any>> {
 
 ## 🧩 BaseTable 插槽
 
-| 插槽名称 | 参数 | 说明 |
-| ---- | ---- | ---- |
-| `#loading` | - | 自定义加载提示内容 |
-| `#empty` | - | 自定义空数据提示内容 |
+| 插槽名称   | 参数              | 说明                                       |
+| ---------- | ----------------- | ------------------------------------------ |
+| `#loading` | -                 | 自定义加载提示内容                         |
+| `#empty`   | -                 | 自定义空数据提示内容                       |
 | `#列的key` | `{ row, column }` | 单元格自定义插槽，插槽名等于列配置的 `key` |
 
 ### 单元格插槽示例
@@ -113,36 +113,31 @@ export interface TableColumn<T = Record<string, any>> {
 
 ```vue
 <template>
-  <BaseTable
-    :columns="columns"
-    :table-data="tableData"
-    row-key="id"
-    container-height="450px"
-  />
+  <BaseTable :columns="columns" :table-data="tableData" row-key="id" container-height="450px" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import BaseTable, { type TableColumn } from '@/components/BaseTable/index.vue'
+import { ref } from 'vue';
+import BaseTable, { type TableColumn } from '@/components/BaseTable/index.vue';
 
 interface Product {
-  id: number
-  name: string
-  price: number
-  stock: number
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
 }
 
 const tableData = ref<Product[]>([
   { id: 1, name: 'iPhone 15', price: 5999, stock: 20 },
   { id: 2, name: '小米14', price: 3999, stock: 35 },
-])
+]);
 
 const columns: TableColumn<Product>[] = [
   { key: 'id', label: '商品ID', width: 80 },
   { key: 'name', label: '商品名称', width: '220' },
   { key: 'price', label: '售价', width: '120px' },
   { key: 'stock', label: '库存', width: '100px' },
-]
+];
 </script>
 ```
 
@@ -176,19 +171,19 @@ const columns: TableColumn<Product>[] = [
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import BaseTable, { type TableColumn } from '@/components/BaseTable/index.vue'
+import { ref } from 'vue';
+import BaseTable, { type TableColumn } from '@/components/BaseTable/index.vue';
 
 interface Product {
-  id: number
-  name: string
-  price: number
-  stock: number
-  desc: string
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  desc: string;
 }
 
-const tableLoading = ref(false)
-const tableData = ref<Product[]>([])
+const tableLoading = ref(false);
+const tableData = ref<Product[]>([]);
 
 const columns: TableColumn<Product>[] = [
   { key: 'id', label: '商品ID', width: 80, fixed: 'left' },
@@ -197,32 +192,32 @@ const columns: TableColumn<Product>[] = [
   { key: 'stock', label: '库存', width: '100px' },
   { key: 'desc', label: '商品描述', width: '350px' },
   { key: 'operate', label: '操作', width: '180px', fixed: 'right' },
-]
+];
 
 // 禁用选择规则：库存为 0 的商品不能勾选
 const handleGetSelectable = (row: Product): boolean => {
-  return row.stock > 0
-}
+  return row.stock > 0;
+};
 
 const onRowClick = (row: Product) => {
-  console.log('点击行', row)
-}
+  console.log('点击行', row);
+};
 
 const handleSelectionChange = (rows: Product[]) => {
-  console.log('选中数据', rows)
-}
+  console.log('选中数据', rows);
+};
 
 const handleEdit = (row: Product) => {
-  console.log('编辑', row)
-}
+  console.log('编辑', row);
+};
 
 const handleDelete = (row: Product) => {
-  console.log('删除', row.id)
-}
+  console.log('删除', row.id);
+};
 
 // 请求数据
 const fetchData = async () => {
-  tableLoading.value = true
+  tableLoading.value = true;
   try {
     // 实际项目中替换为真实接口调用
     // const res = await getProductList()
@@ -234,15 +229,15 @@ const fetchData = async () => {
         { id: 1, name: 'iPhone 15', price: 5999, stock: 20, desc: '苹果手机' },
         { id: 2, name: '小米14', price: 3999, stock: 0, desc: '库存为0，禁用选择' },
         { id: 3, name: '华为Mate60', price: 4999, stock: 12, desc: '华为手机' },
-      ]
-      tableLoading.value = false
-    }, 800)
+      ];
+      tableLoading.value = false;
+    }, 800);
   } catch (e) {
-    tableLoading.value = false
+    tableLoading.value = false;
   }
-}
+};
 
-fetchData()
+fetchData();
 </script>
 ```
 
@@ -262,30 +257,30 @@ fetchData()
 </template>
 
 <script setup lang="ts">
-import BaseTable, { type TableColumn } from '@/components/BaseTable/index.vue'
+import BaseTable, { type TableColumn } from '@/components/BaseTable/index.vue';
 
 interface Product {
-  id: number
-  name: string
-  price: number
+  id: number;
+  name: string;
+  price: number;
 }
 
 const tableData = [
   { id: 1, name: 'iPhone 15', price: 5999 },
   { id: 2, name: '小米14', price: 3999 },
-]
+];
 
 const columns: TableColumn<Product>[] = [
   { key: 'id', label: '商品ID', width: 80 },
   { key: 'name', label: '商品名称', width: '220' },
   { key: 'price', label: '售价', width: '120px' },
-]
+];
 
 // 单选模式下，数组中只有一个元素，即当前选中行
 const handleSelectionChange = (rows: Product[]) => {
-  const selected = rows[0]
-  console.log('当前选中：', selected)
-}
+  const selected = rows[0];
+  console.log('当前选中：', selected);
+};
 </script>
 ```
 
@@ -327,9 +322,9 @@ const handleSelectionChange = (rows: Product[]) => {
 
 ```ts
 const onRowClick = (row: Product) => {
-  if (row.stock <= 0) return  // 禁用行不响应点击
-  console.log('点击行', row)
-}
+  if (row.stock <= 0) return; // 禁用行不响应点击
+  console.log('点击行', row);
+};
 ```
 
 ### 4. 全选只操作可选择的行
@@ -355,9 +350,9 @@ const onRowClick = (row: Product) => {
 **解决**：取 `.data` 再赋值：
 
 ```ts
-const res = await getProductList()
+const res = await getProductList();
 if (res.code === 200) {
-  tableData.value = res.data  // ✅ res.data 才是数组
+  tableData.value = res.data; // ✅ res.data 才是数组
 }
 ```
 
@@ -370,13 +365,13 @@ if (res.code === 200) {
 ```ts
 // request.ts 拦截器
 request.interceptors.response.use(
-  (response) => response.data,  // ✅ 必须 return
+  (response) => response.data, // ✅ 必须 return
   (error) => Promise.reject(error)
-)
+);
 
 // get 封装强制返回 Promise<T>
 export function get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  return request.get(url, config) as unknown as Promise<T>
+  return request.get(url, config) as unknown as Promise<T>;
 }
 ```
 
@@ -389,19 +384,19 @@ export function get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
 ```ts
 // ✅ 方案1：增加 render 使用 T
 export interface TableColumn<T = Record<string, any>> {
-  key: string
-  label: string
-  width?: number | string
-  fixed?: 'left' | 'right' | false
-  render?: (row: T, column: TableColumn<T>) => string | VNode
+  key: string;
+  label: string;
+  width?: number | string;
+  fixed?: 'left' | 'right' | false;
+  render?: (row: T, column: TableColumn<T>) => string | VNode;
 }
 
 // ✅ 方案2：暂时不用泛型
 export interface TableColumn {
-  key: string
-  label: string
-  width?: number | string
-  fixed?: 'left' | 'right' | false
+  key: string;
+  label: string;
+  width?: number | string;
+  fixed?: 'left' | 'right' | false;
 }
 ```
 
@@ -435,11 +430,7 @@ export interface TableColumn {
       <thead>
         <tr>
           <!-- 多选/单选 选择列表头 -->
-          <th
-            v-if="selectionType"
-            class="selection-col"
-            :style="getThTdStyle(selectionColumn)"
-          >
+          <th v-if="selectionType" class="selection-col" :style="getThTdStyle(selectionColumn)">
             <input
               v-if="selectionType === 'checkbox'"
               type="checkbox"
@@ -447,11 +438,7 @@ export interface TableColumn {
               @change="handleSelectAll"
             />
           </th>
-          <th
-            v-for="column in columns"
-            :key="column.key"
-            :style="getThTdStyle(column)"
-          >
+          <th v-for="column in columns" :key="column.key" :style="getThTdStyle(column)">
             {{ column.label }}
           </th>
         </tr>
@@ -485,11 +472,7 @@ export interface TableColumn {
               :name="radioGroupName"
             />
           </td>
-          <td
-            v-for="column in columns"
-            :key="column.key"
-            :style="getThTdStyle(column)"
-          >
+          <td v-for="column in columns" :key="column.key" :style="getThTdStyle(column)">
             <slot :name="column.key" :row="row" :column="column">
               {{ row[column.key] }}
             </slot>
@@ -506,15 +489,15 @@ export interface TableColumn {
 </template>
 
 <script setup lang="ts">
-import type { PropType, CSSProperties, VNode } from 'vue'
-import { ref, computed } from 'vue'
+import type { PropType, CSSProperties, VNode } from 'vue';
+import { ref, computed } from 'vue';
 
 export interface TableColumn<T = Record<string, any>> {
-  key: string
-  label: string
-  width?: number | string
-  fixed?: 'left' | 'right' | false
-  render?: (row: T, column: TableColumn<T>) => string | VNode
+  key: string;
+  label: string;
+  width?: number | string;
+  fixed?: 'left' | 'right' | false;
+  render?: (row: T, column: TableColumn<T>) => string | VNode;
 }
 
 const props = defineProps({
@@ -546,138 +529,136 @@ const props = defineProps({
     type: Function as PropType<(row: Record<string, any>) => boolean>,
     default: undefined,
   },
-})
+});
 
 const emit = defineEmits<{
-  'row-click': [row: Record<string, any>]
-  'selection-change': [selectedRows: Record<string, any>[]]
-}>()
+  'row-click': [row: Record<string, any>];
+  'selection-change': [selectedRows: Record<string, any>[]];
+}>();
 
-const selectedRows = ref<Record<string, any>[]>([])
-const radioGroupName = computed(() => `base-table-radio-${Date.now()}`)
+const selectedRows = ref<Record<string, any>[]>([]);
+const radioGroupName = computed(() => `base-table-radio-${Date.now()}`);
 
 const selectionColumn: TableColumn = {
   key: '__selection',
   label: '',
   width: '50px',
   fixed: 'left',
-}
+};
 
 const isRowSelectable = (row: Record<string, any>): boolean => {
-  if (!props.getSelectable) return true
-  return props.getSelectable(row)
-}
+  if (!props.getSelectable) return true;
+  return props.getSelectable(row);
+};
 
 const isRowSelected = (row: Record<string, any>) => {
-  return selectedRows.value.some(item => item[props.rowKey] === row[props.rowKey])
-}
+  return selectedRows.value.some((item) => item[props.rowKey] === row[props.rowKey]);
+};
 
 const handleRowSelect = (row: Record<string, any>) => {
-  if (!isRowSelectable(row)) return
+  if (!isRowSelectable(row)) return;
 
   if (props.selectionType === 'radio') {
-    selectedRows.value = [row]
+    selectedRows.value = [row];
   } else {
-    const idx = selectedRows.value.findIndex(
-      item => item[props.rowKey] === row[props.rowKey]
-    )
+    const idx = selectedRows.value.findIndex((item) => item[props.rowKey] === row[props.rowKey]);
     if (idx > -1) {
-      selectedRows.value.splice(idx, 1)
+      selectedRows.value.splice(idx, 1);
     } else {
-      selectedRows.value.push(row)
+      selectedRows.value.push(row);
     }
   }
-  emit('selection-change', [...selectedRows.value])
-}
+  emit('selection-change', [...selectedRows.value]);
+};
 
 const isAllSelected = computed({
   get() {
-    const selectableRows = props.tableData.filter(row => isRowSelectable(row))
-    if (selectableRows.length === 0) return false
-    return selectableRows.every(row => isRowSelected(row))
+    const selectableRows = props.tableData.filter((row) => isRowSelectable(row));
+    if (selectableRows.length === 0) return false;
+    return selectableRows.every((row) => isRowSelected(row));
   },
   set(val: boolean) {
-    const selectableRows = props.tableData.filter(row => isRowSelectable(row))
+    const selectableRows = props.tableData.filter((row) => isRowSelectable(row));
     if (val) {
-      selectedRows.value = [...selectableRows]
+      selectedRows.value = [...selectableRows];
     } else {
-      selectedRows.value = selectedRows.value.filter(r => !isRowSelectable(r))
+      selectedRows.value = selectedRows.value.filter((r) => !isRowSelectable(r));
     }
-    emit('selection-change', [...selectedRows.value])
+    emit('selection-change', [...selectedRows.value]);
   },
-})
+});
 
 const handleRowClick = (row: Record<string, any>) => {
-  emit('row-click', row)
-}
+  emit('row-click', row);
+};
 
 const getColumnWidth = (w?: number | string): string | undefined => {
-  if (w === undefined || w === null) return undefined
+  if (w === undefined || w === null) return undefined;
   if (typeof w === 'number') {
-    return `${w}px`
+    return `${w}px`;
   }
-  const str = w.trim()
+  const str = w.trim();
   if (/^\d+$/.test(str)) {
-    return `${str}px`
+    return `${str}px`;
   }
-  return str
-}
+  return str;
+};
 
 const getWidthNumber = (w?: number | string): number => {
-  const str = getColumnWidth(w)
-  if (!str) return 0
-  const match = str.match(/(\d+)/)
-  return match ? Number(match[1]) : 0
-}
+  const str = getColumnWidth(w);
+  if (!str) return 0;
+  const match = str.match(/(\d+)/);
+  return match ? Number(match[1]) : 0;
+};
 
 const getThTdStyle = (column: TableColumn): CSSProperties => {
   const style: CSSProperties = {
     width: getColumnWidth(column.width),
-  }
+  };
 
   if (column.fixed === 'left') {
-    style.position = 'sticky'
-    style.left = calcLeftOffset(column)
-    style.background = '#fff'
-    style.zIndex = 3
+    style.position = 'sticky';
+    style.left = calcLeftOffset(column);
+    style.background = '#fff';
+    style.zIndex = 3;
   } else if (column.fixed === 'right') {
-    style.position = 'sticky'
-    style.right = calcRightOffset(column)
-    style.background = '#fff'
-    style.zIndex = 3
+    style.position = 'sticky';
+    style.right = calcRightOffset(column);
+    style.background = '#fff';
+    style.zIndex = 3;
   }
-  return style
-}
+  return style;
+};
 
 const calcLeftOffset = (targetCol: TableColumn): string => {
-  let offset = 0
+  let offset = 0;
   if (props.selectionType) {
-    offset += getWidthNumber(selectionColumn.width)
+    offset += getWidthNumber(selectionColumn.width);
   }
   for (const col of props.columns) {
-    if (col.key === targetCol.key) break
+    if (col.key === targetCol.key) break;
     if (col.fixed === 'left') {
-      offset += getWidthNumber(col.width)
+      offset += getWidthNumber(col.width);
     }
   }
-  return `${offset}px`
-}
+  return `${offset}px`;
+};
 
 const calcRightOffset = (targetCol: TableColumn): string => {
-  let offset = 0
-  let startSum = false
+  let offset = 0;
+  let startSum = false;
   for (let i = props.columns.length - 1; i >= 0; i--) {
-    const col = props.columns[i]
+    const col = props.columns[i];
     if (col.key === targetCol.key) {
-      startSum = true
-      continue
+      startSum = true;
+      continue;
     }
     if (startSum && col.fixed === 'right') {
-      offset += getWidthNumber(col.width)
+      offset += getWidthNumber(col.width);
     }
   }
-  return `${offset}px`
-}
+  return `${offset}px`;
+};
 </script>
 
 <style scoped>
@@ -744,7 +725,7 @@ const calcRightOffset = (targetCol: TableColumn): string => {
 
 ## 📌 版本记录
 
-| 版本 | 日期 | 变更内容 |
-| ---- | ---- | ---- |
-| v1.1 | 2026-09-08 | 移除分页组件相关内容，新增单选模式示例、常见报错排查小节 |
+| 版本 | 日期       | 变更内容                                                                       |
+| ---- | ---------- | ------------------------------------------------------------------------------ |
+| v1.1 | 2026-09-08 | 移除分页组件相关内容，新增单选模式示例、常见报错排查小节                       |
 | v1.0 | 2026-09-08 | 初始版本：表头固定、左右固定列、多选/单选、禁用行选择、loading、行点击、空数据 |

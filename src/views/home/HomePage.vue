@@ -1,64 +1,81 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
-// import { useGoodsStore } from '@/store/goods'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
+// import { useGoodsStore, type Goods } from '@/store/goods'
 import { getProductList } from '@/api/product';
-const router = useRouter()
+const router = useRouter();
 // const goodsStore = useGoodsStore()
 
 /* ---------- 响应式视口（PC / 移动） ---------- */
-const isPc = ref(false)
-let mq = null
+const isPc = ref(false);
+let mq = null;
 
 const updateViewport = () => {
-  isPc.value = mq ? mq.matches : window.innerWidth >= 768
-}
+  isPc.value = mq ? mq.matches : window.innerWidth >= 768;
+};
 
 onMounted(() => {
   mq = window.matchMedia('(min-width: 768px)');
   updateViewport();
   mq.addEventListener('change', updateViewport);
   initProductList();
-})
+});
 
 onBeforeUnmount(() => {
-  mq?.removeEventListener('change', updateViewport)
-})
+  mq?.removeEventListener('change', updateViewport);
+});
 
 /* 金刚区列数：移动端 4 列，PC 端 8 列一行 */
-const gridColumns = computed(() => (isPc.value ? 8 : 4))
+const gridColumns = computed(() => (isPc.value ? 8 : 4));
 
 /* ---------- 推荐商品（来自全局 store，管理后台修改后实时生效） ---------- */
 // const goodsList = computed(() => goodsStore.goodsList)
 
 const goodsList = ref([]);
 
-
 const initProductList = async () => {
   try {
-    const { code, data } = await getProductList()
+    const { code, data } = await getProductList();
     if (code !== 200) {
       return;
     }
     goodsList.value = data;
   } catch (error) {
-    console.error('获取商品列表失败，错误信息：', error)
+    console.error('获取商品列表失败，错误信息：', error);
   }
 };
 
 /* ---------- 搜索 ---------- */
-const keyword = ref('')
+const keyword = ref('');
 const onSearch = (val) => {
   // 演示：跳转到分类页（后续可接商品搜索页）
-  router.push({ path: '/category', query: { keyword: val } })
-}
+  router.push({ path: '/category', query: { keyword: val } });
+};
 
 /* ---------- 轮播 Banner ---------- */
 const banners = [
-  { id: 1, title: '开学季焕新', sub: '全场低至 5 折', emoji: '🎒', bg: 'linear-gradient(135deg,#ff6a3d,#ff2d55)' },
-  { id: 2, title: '数码狂欢周', sub: '爆款直降 300 元', emoji: '📱', bg: 'linear-gradient(135deg,#36cfc9,#1890ff)' },
-  { id: 3, title: '生鲜好物节', sub: '每日 0 点开抢', emoji: '🥬', bg: 'linear-gradient(135deg,#73d13d,#13c2c2)' }
-]
+  {
+    id: 1,
+    title: '开学季焕新',
+    sub: '全场低至 5 折',
+    emoji: '🎒',
+    bg: 'linear-gradient(135deg,#ff6a3d,#ff2d55)',
+  },
+  {
+    id: 2,
+    title: '数码狂欢周',
+    sub: '爆款直降 300 元',
+    emoji: '📱',
+    bg: 'linear-gradient(135deg,#36cfc9,#1890ff)',
+  },
+  {
+    id: 3,
+    title: '生鲜好物节',
+    sub: '每日 0 点开抢',
+    emoji: '🥬',
+    bg: 'linear-gradient(135deg,#73d13d,#13c2c2)',
+  },
+];
 
 /* ---------- 金刚区（分类入口） ---------- */
 const gridEntries = [
@@ -69,17 +86,17 @@ const gridEntries = [
   { icon: '💄', label: '美妆个护', color: '#ff85c0' },
   { icon: '🍎', label: '食品生鲜', color: '#52c41a' },
   { icon: '🏠', label: '家用电器', color: '#fa8c16' },
-  { icon: '🎁', label: '领券中心', color: '#f5222d' }
-]
+  { icon: '🎁', label: '领券中心', color: '#f5222d' },
+];
 
 /* ---------- 秒杀倒计时（演示用静态值） ---------- */
-const countdown = '12:30:00'
+const countdown = '12:30:00';
 
-const goCategory = () => router.push('/category')
+const goCategory = () => router.push('/category');
 const addToCart = (goods) => {
   // 演示：加入购物车（后续接 Pinia 购物车状态）
-  console.log('加入购物车：', goods.name)
-}
+  console.log('加入购物车：', goods.name);
+};
 </script>
 
 <template>
@@ -88,8 +105,13 @@ const addToCart = (goods) => {
     <div class="header">
       <div class="header-inner">
         <div class="search-wrap">
-          <van-search v-model="keyword" shape="round" placeholder="搜索商品，如：耳机" background="transparent"
-            @search="onSearch" />
+          <van-search
+            v-model="keyword"
+            shape="round"
+            placeholder="搜索商品，如：耳机"
+            background="transparent"
+            @search="onSearch"
+          />
         </div>
       </div>
     </div>
@@ -396,7 +418,9 @@ const addToCart = (goods) => {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .goods-img {
@@ -492,7 +516,6 @@ const addToCart = (goods) => {
 
 /* ========== PC 响应式（≥768px） ========== */
 @media (min-width: 768px) {
-
   /* 页面容器作为滚动容器，滚动条出现在 home-page 区域 */
   .home-page {
     height: 100%;

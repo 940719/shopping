@@ -1,62 +1,68 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from 'vue';
 
 /* mock 分类数据（后续可替换为接口） */
 const categories = [
   {
-    id: 1, name: '推荐',
+    id: 1,
+    name: '推荐',
     goods: [
       { id: 101, name: '今日爆款 无线耳机', emoji: '🎧', price: 199 },
       { id: 102, name: '车厘子 2 斤装', emoji: '🍒', price: 69 },
       { id: 103, name: '纯棉卫衣', emoji: '🧥', price: 129 },
-      { id: 104, name: '空气炸锅', emoji: '🍟', price: 259 }
-    ]
+      { id: 104, name: '空气炸锅', emoji: '🍟', price: 259 },
+    ],
   },
   {
-    id: 2, name: '手机数码',
+    id: 2,
+    name: '手机数码',
     goods: [
       { id: 201, name: '智能手机 12+256G', emoji: '📱', price: 2999 },
       { id: 202, name: '蓝牙耳机 降噪', emoji: '🎧', price: 199 },
       { id: 203, name: '智能手表', emoji: '⌚', price: 899 },
-      { id: 204, name: '移动电源 20000mAh', emoji: '🔋', price: 129 }
-    ]
+      { id: 204, name: '移动电源 20000mAh', emoji: '🔋', price: 129 },
+    ],
   },
   {
-    id: 3, name: '服饰鞋包',
+    id: 3,
+    name: '服饰鞋包',
     goods: [
       { id: 301, name: '纯棉T恤 基础款', emoji: '👕', price: 59 },
       { id: 302, name: '运动跑鞋', emoji: '👟', price: 219 },
-      { id: 303, name: '休闲双肩包', emoji: '🎒', price: 99 }
-    ]
+      { id: 303, name: '休闲双肩包', emoji: '🎒', price: 99 },
+    ],
   },
   {
-    id: 4, name: '美妆个护',
+    id: 4,
+    name: '美妆个护',
     goods: [
       { id: 401, name: '保湿精华液', emoji: '🧴', price: 89 },
       { id: 402, name: '口红 丝绒哑光', emoji: '💄', price: 79 },
-      { id: 403, name: '电动牙刷', emoji: '🪥', price: 139 }
-    ]
+      { id: 403, name: '电动牙刷', emoji: '🪥', price: 139 },
+    ],
   },
   {
-    id: 5, name: '食品生鲜',
+    id: 5,
+    name: '食品生鲜',
     goods: [
       { id: 501, name: '进口车厘子', emoji: '🍒', price: 69 },
       { id: 502, name: '有机牛奶 12 盒', emoji: '🥛', price: 59 },
-      { id: 503, name: '坚果礼盒', emoji: '🥜', price: 89 }
-    ]
+      { id: 503, name: '坚果礼盒', emoji: '🥜', price: 89 },
+    ],
   },
   {
-    id: 6, name: '家用电器',
+    id: 6,
+    name: '家用电器',
     goods: [
       { id: 601, name: '空气炸锅 5L', emoji: '🍟', price: 259 },
       { id: 602, name: '破壁机 静音款', emoji: '🥤', price: 399 },
-      { id: 603, name: '扫地机器人', emoji: '🤖', price: 1599 }
-    ]
-  }
-]
+      { id: 603, name: '扫地机器人', emoji: '🤖', price: 1599 },
+    ],
+  },
+];
 
-const active = ref(0)
-const current = computed(() => categories[active.value])
+const active = ref(0);
+const current = computed(() => categories[active.value]);
 
 /* 左侧分类底色 */
 const categoryBg = [
@@ -65,8 +71,8 @@ const categoryBg = [
   'linear-gradient(135deg,#9254de,#b37feb)',
   'linear-gradient(135deg,#ff85c0,#ffadd2)',
   'linear-gradient(135deg,#52c41a,#95de64)',
-  'linear-gradient(135deg,#fa8c16,#ffc53d)'
-]
+  'linear-gradient(135deg,#fa8c16,#ffc53d)',
+];
 </script>
 
 <template>
@@ -79,11 +85,7 @@ const categoryBg = [
     <div class="category-body">
       <!-- 左侧分类导航 -->
       <van-sidebar v-model="active" class="sidebar">
-        <van-sidebar-item
-          v-for="c in categories"
-          :key="c.id"
-          :title="c.name"
-        />
+        <van-sidebar-item v-for="c in categories" :key="c.id" :title="c.name" />
       </van-sidebar>
 
       <!-- 右侧商品 -->
@@ -93,11 +95,7 @@ const categoryBg = [
           <span>{{ current.name }}</span>
         </div>
         <div class="panel-grid">
-          <div
-            v-for="g in current.goods"
-            :key="g.id"
-            class="cat-goods"
-          >
+          <div v-for="g in current.goods" :key="g.id" class="cat-goods">
             <div
               class="cat-goods-img"
               :style="{ background: categoryBg[active % categoryBg.length] }"
