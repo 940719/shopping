@@ -11,7 +11,8 @@ const request = axios.create({
 request.interceptors.request.use(
   (config) => {
     config.headers['ngrok-skip-browser-warning'] = 'any';
-    const token = localStorage.getItem('admin_token');
+    // 商城登录态存 admin_token（JWT）；token 键为商城跳转管理端用的令牌，不能用于接口鉴权
+    const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

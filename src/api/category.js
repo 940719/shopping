@@ -1,5 +1,8 @@
-import { get, post, put, del } from '@/utils/request';
+import { get } from '@/utils/request'
 
-export const getCategoryList = (data) => {
-  return get('/getCategories', { params: data });
-};
+/**
+ * 商品类型列表
+ * GET /api/getCategories?page=&pageSize= → { code, data: { list: [{ id, name, sort, createTime }] } }
+ */
+export const getCategoryList = (data) =>
+  get('/getCategories', { params: data })
