@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+﻿import { createRouter, createWebHistory } from 'vue-router';
 
 // 路由数组（页面组件全部懒加载）
 export const routes = [
@@ -67,6 +67,51 @@ export const routes = [
     component: () => import('@/views/user/userPage.vue'),
     meta: {
       title: '用户管理',
+    },
+  },
+  {
+    path: '/address',
+    name: 'Address',
+    component: () => import('@/views/address/AddressPage.vue'),
+    meta: {
+      title: '收货地址',
+      hideHeader: true,
+    },
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: () => import('@/views/orders/OrdersPage.vue'),
+    meta: {
+      title: '我的订单',
+      hideHeader: true,
+    },
+  },
+  {
+    path: '/coupons',
+    name: 'Coupons',
+    component: () => import('@/views/coupons/CouponPage.vue'),
+    meta: {
+      title: '优惠券',
+      hideHeader: true,
+    },
+  },
+  {
+    path: '/favorites',
+    name: 'Favorites',
+    component: () => import('@/views/favorites/FavoritesPage.vue'),
+    meta: {
+      title: '我的收藏',
+      hideHeader: true,
+    },
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/settings/SettingsPage.vue'),
+    meta: {
+      title: '设置',
+      hideHeader: true,
     },
   },
   // 404 兜底：未知路径重定向回首页

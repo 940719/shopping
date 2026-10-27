@@ -1,5 +1,5 @@
-<script setup>
-import { getUserList } from './api/user';
+﻿<script setup>
+import { getCartList } from './api/cart';
 import { onMounted, ref, watch, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { showToast } from 'vant';
@@ -64,9 +64,23 @@ const goAdmin = () => {
   window.open(url, '_blank');
 };
 
-const init = async () => {
-  const res = await getUserList();
-  console.log('用户列表：', res.data);
+/* 购物车数量徽标（登录后从真实接口读取） */
+const cartCount = ref(0);
+const loadCartCount = async () => {
+  if (!userStore.isLogin) {
+    cartCount.value = 0;
+    return;
+  }
+  try {
+    const res = await getCartList();
+    if (res.code === 200) {
+      cartCount.value = (res.data || []).reduce((s, i) => s + i.quantity, 0);
+    } else {
+      cartCount.value = 0;
+    }
+  } catch (error) {
+    cartCount.value = 0;
+  }
 };
 const isPc = ref(false);
 let mq = null;
@@ -74,12 +88,26 @@ let mq = null;
 const updateViewport = () => {
   isPc.value = mq ? mq.matches : window.innerWidth >= 768;
 };
-onMounted(() => {
+onMounted(async () => {
   mq = window.matchMedia('(min-width: 768px)');
   updateViewport();
   mq.addEventListener('change', updateViewport);
-  init();
+  // 等路由解析完成后再判断当前页，避免整页打开 /cart 时误判为首页
+  await router.isReady();
+  // 购物车页自身会加载数据，避免重复请求；其余页面按需拉徽标
+  if (route.path !== '/cart') loadCartCount();
 });
+
+// 路由变化时刷新购物车徽标（购物车页数据由 CartPage 自己管理，跳过避免重复请求）
+watch(
+  () => route.path,
+  () => {
+    if (route.path !== '/cart') loadCartCount();
+  }
+);
+
+// 加购成功（全局事件）时刷新购物车徽标
+window.addEventListener('cart-changed', loadCartCount);
 onBeforeUnmount(() => {
   mq?.removeEventListener('change', updateViewport);
 });
@@ -144,7 +172,7 @@ onBeforeUnmount(() => {
     >
       <van-tabbar-item icon="home-o">首页</van-tabbar-item>
       <van-tabbar-item icon="apps-o">分类</van-tabbar-item>
-      <van-tabbar-item icon="cart-o">购物车</van-tabbar-item>
+      <van-tabbar-item icon="cart-o" :badge="cartCount || ''">购物车</van-tabbar-item>
       <van-tabbar-item icon="user-o">我的</van-tabbar-item>
     </van-tabbar>
   </div>

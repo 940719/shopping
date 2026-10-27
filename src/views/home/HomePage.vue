@@ -1,9 +1,14 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import { useUserStore } from '@/store/user';
 // import { useGoodsStore, type Goods } from '@/store/goods'
 import { getProductList } from '@/api/product';
+import { addToCart as addCartApi } from '@/api/cart';
+import { getFavorites, addFavorite, removeFavorite } from '@/api/favorite';
 const router = useRouter();
+const userStore = useUserStore();
 // const goodsStore = useGoodsStore()
 
 /* ---------- 响应式视口（PC / 移动） ---------- */
@@ -19,6 +24,7 @@ onMounted(() => {
   updateViewport();
   mq.addEventListener('change', updateViewport);
   initProductList();
+  loadFavorites();
 });
 
 onBeforeUnmount(() => {
@@ -42,6 +48,53 @@ const initProductList = async () => {
     goodsList.value = data;
   } catch (error) {
     console.error('获取商品列表失败，错误信息：', error);
+  }
+};
+
+/* ---------- 收藏（productId -> favoriteId） ---------- */
+const favMap = ref({});
+const loadFavorites = async () => {
+  if (!userStore.isLogin) return;
+  try {
+    const res = await getFavorites();
+    if (res.code === 200) {
+      const map = {};
+      (res.data || []).forEach((f) => {
+        map[f.productId] = f.id;
+      });
+      favMap.value = map;
+    }
+  } catch (error) {
+    // 未登录或接口异常不阻塞首页
+  }
+};
+
+const toggleFavorite = async (g) => {
+  if (!userStore.isLogin) {
+    showToast('请先登录');
+    router.push('/login');
+    return;
+  }
+  try {
+    if (favMap.value[g.id]) {
+      const res = await removeFavorite(favMap.value[g.id]);
+      if (res.code === 200) {
+        const map = { ...favMap.value };
+        delete map[g.id];
+        favMap.value = map;
+        showToast('已取消收藏');
+        window.dispatchEvent(new CustomEvent('fav-changed'));
+      }
+    } else {
+      const res = await addFavorite(g.id);
+      if (res.code === 200) {
+        await loadFavorites();
+        showToast('收藏成功');
+        window.dispatchEvent(new CustomEvent('fav-changed'));
+      }
+    }
+  } catch (error) {
+    showToast('操作失败');
   }
 };
 
@@ -93,9 +146,22 @@ const gridEntries = [
 const countdown = '12:30:00';
 
 const goCategory = () => router.push('/category');
-const addToCart = (goods) => {
-  // 演示：加入购物车（后续接 Pinia 购物车状态）
-  console.log('加入购物车：', goods.name);
+const addToCart = async (goods) => {
+  // 真实加购：需登录，调用后端 POST /api/cart
+  if (!userStore.isLogin) {
+    showToast('请先登录');
+    router.push('/login');
+    return;
+  }
+  try {
+    const res = await addCartApi({ productId: goods.id, quantity: 1 });
+    if (res.code === 200) {
+      showToast('已加入购物车');
+      window.dispatchEvent(new CustomEvent('cart-changed'));
+    }
+  } catch (error) {
+    showToast('加入失败，请重试');
+  }
 };
 </script>
 
@@ -164,6 +230,9 @@ const addToCart = (goods) => {
             <div class="goods-img" :style="{ background: g.bg }">
               <img v-if="g.emoji" :src="g.emoji" class="goods-image" alt="" />
               <span v-else class="goods-emoji">📦</span>
+              <span class="goods-fav" :class="{ active: favMap[g.id] }" @click.stop="toggleFavorite(g)">
+                <van-icon :name="favMap[g.id] ? 'like' : 'like-o'" />
+              </span>
             </div>
             <div class="goods-body">
               <div class="goods-name text-ellipsis">{{ g.name }}</div>
@@ -435,6 +504,28 @@ const addToCart = (goods) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.goods-fav {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #969799;
+  cursor: pointer;
+  z-index: 3;
+}
+.goods-fav :deep(.van-icon) {
+  font-size: 16px;
+}
+.goods-fav.active {
+  color: #ff2d4b;
 }
 
 .goods-emoji {

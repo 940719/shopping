@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { showToast } from 'vant';
@@ -8,6 +8,13 @@ const router = useRouter();
 const userStore = useUserStore();
 
 const nickname = computed(() => userStore.userInfo?.nickname || '未登录');
+const phone = computed(() => {
+  const p = userStore.userInfo?.phone;
+  if (!p) return '';
+  // 手机号脱敏：138****1234
+  return p.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+});
+const avatar = computed(() => userStore.userInfo?.avatar || '');
 const desc = computed(() =>
   userStore.isLogin
     ? userStore.isAdmin
@@ -26,12 +33,29 @@ const onLoginClick = () => {
 };
 
 const orderEntries = [
-  { icon: '💳', label: '待付款' },
-  { icon: '📦', label: '待发货' },
-  { icon: '🚚', label: '待收货' },
-  { icon: '⭐', label: '待评价' },
-  { icon: '🛠️', label: '退款/售后' },
+  { icon: '💳', label: '待付款', status: 1 },
+  { icon: '📦', label: '待发货', status: 2 },
+  { icon: '🚚', label: '待收货', status: 3 },
+  { icon: '⭐', label: '待评价', status: 4 },
+  { icon: '🛠️', label: '退款/售后', status: null },
 ];
+
+/* 订单/地址跳转 */
+const goOrders = (status) => router.push(status ? `/orders?status=${status}` : '/orders');
+const goAddress = () => router.push('/address');
+const onMenuClick = (m) => {
+  if (m.label === '收货地址') {
+    goAddress();
+  } else if (m.label === '优惠券') {
+    router.push('/coupons');
+  } else if (m.label === '我的收藏') {
+    router.push('/favorites');
+  } else if (m.label === '设置') {
+    router.push('/settings');
+  } else {
+    showToast('功能开发中，敬请期待');
+  }
+};
 
 const menuEntries = [
   { icon: '📍', label: '收货地址', color: '#ff6034' },
@@ -47,10 +71,14 @@ const menuEntries = [
     <div class="user-card">
       <div class="user-card-inner">
         <div class="user-info">
-          <div class="avatar">🙂</div>
+          <div class="avatar">
+              <img v-if="avatar" :src="avatar" class="avatar-img" alt="" />
+              <span v-else>🙂</span>
+            </div>
           <div class="user-meta">
             <div class="nickname">{{ nickname }}</div>
             <div class="desc">{{ desc }}</div>
+            <div v-if="phone" class="phone">📞 {{ phone }}</div>
           </div>
           <van-button
             round
@@ -68,12 +96,12 @@ const menuEntries = [
     <div class="mine-main">
       <!-- 订单状态栏 -->
       <div class="order-card">
-        <div class="order-title">
+        <div class="order-title" @click="goOrders()">
           <span>我的订单</span>
           <span class="order-more">全部订单 ›</span>
         </div>
         <div class="order-grid">
-          <div v-for="o in orderEntries" :key="o.label" class="order-item">
+          <div v-for="o in orderEntries" :key="o.label" class="order-item" @click="goOrders(o.status)">
             <span class="order-icon">{{ o.icon }}</span>
             <span class="order-label">{{ o.label }}</span>
           </div>
@@ -82,7 +110,7 @@ const menuEntries = [
 
       <!-- 功能菜单 -->
       <div class="menu-card">
-        <div v-for="m in menuEntries" :key="m.label" class="menu-item">
+        <div v-for="m in menuEntries" :key="m.label" class="menu-item" @click="onMenuClick(m)">
           <span class="menu-icon" :style="{ color: m.color }">{{ m.icon }}</span>
           <span class="menu-label">{{ m.label }}</span>
           <span class="menu-arrow">›</span>
@@ -138,6 +166,17 @@ const menuEntries = [
   font-size: 12px;
   opacity: 0.85;
   margin-top: 4px;
+}
+.phone {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 .login-btn {
   color: #ff4d2d !important;

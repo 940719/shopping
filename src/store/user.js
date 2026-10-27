@@ -11,7 +11,8 @@ function readStored() {
     userInfo = null;
   }
   return {
-    token: localStorage.getItem('token') || '',
+    // 登录态以 admin_token（JWT）为准；token 键为跳转管理端令牌，做兼容回退
+    token: localStorage.getItem('admin_token') || localStorage.getItem('token') || '',
     userInfo,
   };
 }
@@ -24,7 +25,7 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     /**
-     * 真实登录：调用后端 POST /api/login 校验数据库账号密码
+     * 真实登录：调用后端 POST /api/auth/login 校验数据库账号密码
      * 后端返回角色数字码：1 超级管理员 / 2 管理员 / 3 普通用户
      * 前端映射：1、2 → admin（可进入管理后台），3 → user
      */
@@ -37,7 +38,13 @@ export const useUserStore = defineStore('user', {
         const u = res.data;
         const role = u.role === 3 ? 'user' : 'admin';
         this.token = res.data.token;
-        this.userInfo = { username: u.name, nickname: u.nickname || u.name, role };
+        this.userInfo = {
+          username: u.name,
+          nickname: u.nickname || u.name,
+          phone: u.phone,
+          avatar: u.avatar,
+          role,
+        };
         localStorage.setItem('admin_token', this.token);
         localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
         return { ok: true, msg: '' };
@@ -50,6 +57,7 @@ export const useUserStore = defineStore('user', {
       this.token = '';
       this.userInfo = null;
       localStorage.removeItem('token');
+      localStorage.removeItem('admin_token');
       localStorage.removeItem('userInfo');
     },
   },
