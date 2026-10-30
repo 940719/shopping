@@ -165,14 +165,20 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* ========== 移动端（默认）：整页锁定视口高度，滚动收敛到左侧列表 / 右侧商品区 ========== */
 .category-page {
-  min-height: calc(100vh - 60px);
+  height: calc(100vh - 50px); /* 视口高度减去底部 TabBar(50px)，整页不滚动 */
+  min-height: 0;
   background: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .category-header {
   background: linear-gradient(180deg, #ff4d2d 0%, #ff6034 80%, transparent 100%);
   padding: 16px 16px 34px;
   color: #fff;
+  flex-shrink: 0; /* 头部不压缩，不参与滚动 */
 }
 .category-header-inner {
   max-width: 1200px;
@@ -183,11 +189,37 @@ onBeforeUnmount(() => {
   font-weight: 700;
 }
 .category-body {
+  flex: 1;
+  min-height: 0;
   display: flex;
+  overflow: hidden;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 12px;
+  width: 100%!important;
   box-sizing: border-box;
+}
+/* 左侧分类列表：独立滚动，不再带动整页滚动 */
+.sidebar-wrap {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; /* Firefox：细滚动条 */
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+/* 自定义虚拟滚动条：细条 + 半透明圆角，替代原生粗滚动条 */
+.sidebar-wrap::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.sidebar-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-wrap::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+}
+.sidebar-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.32);
 }
 .sidebar {
   width: 88px;
@@ -207,13 +239,31 @@ onBeforeUnmount(() => {
 .sidebar :deep(.van-sidebar-item--select::before) {
   background: #ff4d2d;
 }
+/* 右侧商品区：商品多时独立滚动 */
 .goods-panel {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; /* Firefox：细滚动条 */
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
   background: #fff;
-  margin: 0 10px 10px 0;
   border-radius: 12px;
   padding: 12px;
-  min-height: 400px;
+}
+.goods-panel::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.goods-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.goods-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+}
+.goods-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.32);
 }
 .panel-title {
   display: flex;
@@ -274,17 +324,21 @@ onBeforeUnmount(() => {
   color: #999;
 }
 
-/* ========== PC 响应式（≥768px） ========== */
+/* ========== PC 响应式（≥768px）：恢复整页内部滚动布局 ========== */
 @media (min-width: 768px) {
   .category-page {
     height: 100%;
-    overflow-y: auto; /* PC 端页面内部滚动，body 不滚动 */
+    min-height: 0;
+    display: block; /* 撤销移动端 flex 纵向布局，恢复 PC 整页内部滚动 */
+    overflow-y: auto;
   }
   .category-header {
     padding: 20px 24px 44px;
     flex-shrink: 0;
   }
   .category-body {
+    display: flex;
+    overflow: visible; /* 撤销移动端内部滚动，PC 页面整体滚动 */
     padding: 0 24px 24px;
     min-height: 480px;
   }
@@ -294,6 +348,8 @@ onBeforeUnmount(() => {
     overflow: hidden;
   }
   .sidebar-wrap {
+    height: auto; /* 撤销移动端撑满+滚动，PC 随内容 */
+    overflow: visible;
     position: relative; /* 二级菜单浮层定位锚点 */
     flex-shrink: 0;
     align-self: flex-start;
@@ -333,10 +389,23 @@ onBeforeUnmount(() => {
     width: 160px;
     max-height: 360px;
     overflow-y: auto; /* 剩余分类较多时菜单内独立滚动 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     padding: 6px 0;
+  }
+  .more-panel::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .more-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .more-panel::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 4px;
   }
   .more-item {
     padding: 12px 16px;

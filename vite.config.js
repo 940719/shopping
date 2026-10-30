@@ -5,6 +5,30 @@ import { resolve } from 'path';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  build: {
+    rollupOptions: {
+      // 可选值：true / false / 'smallest' / 'safest'
+      treeshake: 'smallest',
+      output: {
+        manualChunks(id) {
+          // 只处理 node_modules 里的第三方包
+          if (id.includes('node_modules')) {
+            // vue全家桶放一块
+            if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia')) {
+              return 'vendor-vue';
+            }
+            // UI库单独分包
+            if (id.includes('vant')) {
+              return 'vendor-vant';
+            }
+            // 其余所有第三方依赖统一打包
+            return 'vendor-other';
+          }
+          // 业务代码（非node_modules）返回undefined，不手动分包
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(import.meta.dirname, './src'),

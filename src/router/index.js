@@ -1,10 +1,12 @@
 ﻿import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from '@/store/user';
 
 // 路由数组（页面组件全部懒加载）
 export const routes = [
   {
     path: '/',
-    redirect: '/home', // 默认根路径 重定向到商城首页
+    // 保留 query：管理端跳转带 ?token={JWT}，重定向到 /home 时不能丢
+    redirect: (to) => ({ path: '/home', query: to.query }),
   },
   // ========== 商城 Tab 主页面（底部导航）==========
   {
@@ -58,7 +60,7 @@ export const routes = [
     component: () => import('@/views/login/LoginPage.vue'),
     meta: {
       title: '登录',
-      hideHeader: true,
+      hideHeader: false,
     },
   },
   {
@@ -129,9 +131,22 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 });
 
-// 全局前置守卫：设置页面标题
-router.beforeEach((to, _from, next) => {
+// 全局前置守卫：设置页面标题 + 管理端跳转免登录恢复
+router.beforeEach(async (to, _from, next) => {
   document.title = to.meta.title || '商城';
+  // 管理端跳转携带 ?token={JWT}：导航放行前先恢复登录态，避免页面请求 401
+  const t = to.query.token || to.query.admin_token;
+  if (t) {
+    const userStore = useUserStore();
+    if (!userStore.isLogin) {
+      const ok = await userStore.loginWithToken(t);
+      if (ok) {
+        // 恢复成功：去掉地址栏 token，继续本次导航
+        next({ path: to.path, replace: true });
+        return;
+      }
+    }
+  }
   next();
 });
 

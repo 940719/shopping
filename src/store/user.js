@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login as loginRequest } from '@/api/user';
+import { login as loginRequest, restoreByToken } from '@/api/user';
 
 /** 从 localStorage 恢复登录态 */
 function readStored() {
@@ -39,6 +39,7 @@ export const useUserStore = defineStore('user', {
         const role = u.role === 3 ? 'user' : 'admin';
         this.token = res.data.token;
         this.userInfo = {
+          id: u.id, // 用户id：跳转管理端免登录令牌 token-{id} 使用
           username: u.name,
           nickname: u.nickname || u.name,
           phone: u.phone,
@@ -51,6 +52,34 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         console.error('登录失败：', error);
         return { ok: false, msg: '网络异常，请稍后重试' };
+      }
+    },
+    /**
+     * 免登录恢复：管理端跳转时携带其登录的 JWT（?token={JWT}），
+     * 交给后端 POST /api/auth/restore 校验签名并返回用户信息，写入商城登录态
+     */
+    async loginWithToken(token) {
+      if (!token) return false;
+      try {
+        const res = await restoreByToken(token);
+        if (res.code !== 200 || !res.data) return false;
+        const u = res.data;
+        const role = u.role === 3 ? 'user' : 'admin';
+        this.token = token;
+        this.userInfo = {
+          id: u.id,
+          username: u.name,
+          nickname: u.nickname || u.name,
+          phone: u.phone,
+          avatar: u.avatar,
+          role,
+        };
+        localStorage.setItem('admin_token', token);
+        localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+        return true;
+      } catch (error) {
+        console.error('token 恢复登录失败：', error);
+        return false;
       }
     },
     logout() {

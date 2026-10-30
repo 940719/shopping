@@ -26,6 +26,11 @@ export const login = (name, password) => {
   return post('/auth/login', { name, password });
 };
 
+/** 免登录恢复：管理端跳转携带的 JWT 换取用户信息 POST /api/auth/restore */
+export const restoreByToken = (token) => {
+  return post('/auth/restore', { token });
+};
+
 /** 用户列表 GET /api/users/list */
 export const getUserList = () => {
   return get('/users/list');

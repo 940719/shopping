@@ -58,7 +58,7 @@ const handleLogout = () => {
 const goAdmin = () => {
   // 本地开发：管理端 dev server（.env.development 的 VITE_ADMIN_URL）
   const adminUrl = import.meta.env.VITE_ADMIN_URL;
-  // 已登录时携带 token（token-{用户id}），管理端据此免登录恢复会话
+  // 已登录时携带商城 JWT，管理端交由后端 /auth/restore 校验后免登录恢复（仅管理员放行）
   const token = userStore.token;
   const url = token ? adminUrl + '?admin_token=' + encodeURIComponent(token) : adminUrl;
   window.open(url, '_blank');
