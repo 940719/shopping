@@ -116,6 +116,15 @@ export const routes = [
       hideHeader: true,
     },
   },
+  {
+    path: '/product/:id',
+    name: 'ProductDetail',
+    component: () => import('@/views/product/ProductDetail.vue'),
+    meta: {
+      title: '商品详情',
+      hideHeader: true,
+    },
+  },
   // 404 兜底：未知路径重定向回首页
   {
     path: '/:pathMatch(.*)*',

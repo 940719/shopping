@@ -1,8 +1,16 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { showToast } from 'vant';
 import { getCategoryList } from '@/api/category';
 import { getProductList } from '@/api/product';
+import { addToCart } from '@/api/cart';
 import { isImgUrl } from '@/utils/img';
+import { useUserStore } from '@/store/user';
+
+const router = useRouter();
+const route = useRoute();
+const userStore = useUserStore();
 
 /* ================= 分类数据：来自商品类型接口 ================= */
 const categories = ref([]);
@@ -68,6 +76,34 @@ const selectFromMore = (index) => {
   const c = categories.value[index];
   if (c) loadGoods(String(c.id));
   moreOpen.value = false;
+};
+
+/* ===== 商品卡片：点击进详情 ===== */
+const goDetail = (g) => {
+  router.push(`/product/${g.id}`);
+};
+
+/* ===== 商品卡片：加入购物车 ===== */
+const addingId = ref(null);
+const onAddCart = async (g, e) => {
+  e && e.stopPropagation();
+  if (!userStore.isLogin) {
+    showToast('请先登录');
+    router.push({ path: '/login', query: { redirect: route.fullPath } });
+    return;
+  }
+  addingId.value = g.id;
+  try {
+    const res = await addToCart({ productId: g.id, quantity: 1 });
+    if (res.code === 200) {
+      showToast('已加入购物车');
+      window.dispatchEvent(new CustomEvent('cart-changed'));
+    }
+  } catch (error) {
+    showToast('加入失败');
+  } finally {
+    addingId.value = null;
+  }
 };
 
 /* 点击「更多」菜单外部时收起 */
@@ -145,7 +181,7 @@ onBeforeUnmount(() => {
           <span>{{ current.name }}</span>
         </div>
         <div class="panel-grid">
-          <div v-for="g in goodsList" :key="g.id" class="cat-goods">
+          <div v-for="g in goodsList" :key="g.id" class="cat-goods" @click="goDetail(g)">
             <div
               class="cat-goods-img"
               :style="{ background: categoryBg[active % categoryBg.length] }"
@@ -154,7 +190,15 @@ onBeforeUnmount(() => {
               <span v-else>{{ g.emoji }}</span>
             </div>
             <div class="cat-goods-name text-ellipsis">{{ g.name }}</div>
-            <div class="cat-goods-price">¥{{ g.price }}</div>
+            <div class="cat-goods-bottom">
+              <div class="cat-goods-price">¥{{ g.price }}</div>
+              <van-icon
+                name="cart-o"
+                class="cat-goods-cart"
+                :class="{ loading: addingId === g.id }"
+                @click.stop="onAddCart(g, $event)"
+              />
+            </div>
           </div>
           <div v-if="loading" class="cat-empty">加载中...</div>
           <div v-else-if="!goodsList.length" class="cat-empty">该分类暂无商品</div>
@@ -289,6 +333,11 @@ onBeforeUnmount(() => {
   background: #f8f9fb;
   border-radius: 10px;
   padding: 8px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.cat-goods:active {
+  transform: scale(0.97);
 }
 .cat-goods-img {
   height: 72px;
@@ -310,11 +359,28 @@ onBeforeUnmount(() => {
   color: #333;
   margin-top: 6px;
 }
+.cat-goods-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
 .cat-goods-price {
   font-size: 14px;
   color: #ff2d4b;
   font-weight: 700;
-  margin-top: 2px;
+}
+.cat-goods-cart {
+  font-size: 18px;
+  color: #ff4d2d;
+  background: #ffece8;
+  border-radius: 50%;
+  padding: 5px;
+  box-sizing: content-box;
+}
+.cat-goods-cart.loading {
+  opacity: 0.5;
+  pointer-events: none;
 }
 .cat-empty {
   grid-column: 1 / -1;
@@ -450,7 +516,6 @@ onBeforeUnmount(() => {
   }
   .cat-goods-price {
     font-size: 16px;
-    margin-top: 4px;
   }
 }
 </style>

@@ -7,8 +7,8 @@ export default defineConfig({
   plugins: [vue()],
   build: {
     rollupOptions: {
-      // 可选值：true / false / 'smallest' / 'safest'
-      treeshake: 'smallest',
+      // rollup 4.0+ 不再支持多入口，改为单入口 treeshake只能设置为 true / false /对象
+      treeshake: true,
       output: {
         manualChunks(id) {
           // 只处理 node_modules 里的第三方包

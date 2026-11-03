@@ -32,9 +32,6 @@ export const useUserStore = defineStore('user', {
     async login(username, password) {
       try {
         const res = await loginRequest(username.trim(), password);
-        if (res.code !== 200 || !res.data) {
-          return { ok: false, msg: res.msg || '登录失败' };
-        }
         const u = res.data;
         const role = u.role === 3 ? 'user' : 'admin';
         this.token = res.data.token;
@@ -50,8 +47,7 @@ export const useUserStore = defineStore('user', {
         localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
         return { ok: true, msg: '' };
       } catch (error) {
-        console.error('登录失败：', error);
-        return { ok: false, msg: '网络异常，请稍后重试' };
+        return { ok: false, msg: error.message || '登录失败' };
       }
     },
     /**

@@ -146,6 +146,10 @@ const gridEntries = [
 const countdown = '12:30:00';
 
 const goCategory = () => router.push('/category');
+
+/* 点击商品卡片进入详情页 */
+const goDetail = (g) => router.push(`/product/${g.id}`);
+
 const addToCart = async (goods) => {
   // 真实加购：需登录，调用后端 POST /api/cart
   if (!userStore.isLogin) {
@@ -226,7 +230,7 @@ const addToCart = async (goods) => {
           <span class="title-sub">猜你喜欢 · 品质好物</span>
         </div>
         <div class="goods-grid">
-          <div v-for="g in goodsList" :key="g.id" class="goods-card">
+          <div v-for="g in goodsList" :key="g.id" class="goods-card" @click="goDetail(g)">
             <div class="goods-img" :style="{ background: g.bg }">
               <img v-if="g.emoji" :src="g.emoji" class="goods-image" alt="" />
               <span v-else class="goods-emoji">📦</span>
